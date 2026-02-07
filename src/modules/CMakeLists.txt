@@ -2,7 +2,7 @@ set(M_SRC
     data/errors.cpp
     data/data.cpp
     data/types.cpp
-    #data/ptable.cpp
+    data/ptable.cpp
     symm/index.cpp
     symm/cell.cpp
     io/strfun.cpp)

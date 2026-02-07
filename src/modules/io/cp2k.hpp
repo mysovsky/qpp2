@@ -21,8 +21,8 @@
 
 namespace qpp {
 
-  template<class REAL, class CELL = periodic_cell<REAL> >
-  void write_cp2k_coord_section (std::basic_ostream<CHAR_EX,TRAITS> &out, geometry<REAL, CELL> &geom) {
+  template<class REAL >
+  void write_cp2k_coord_section (std::basic_ostream<CHAR_EX,TRAITS> &out, geometry<REAL> &geom) {
 
 //  Reference:
 //    &CELL
@@ -39,8 +39,8 @@ namespace qpp {
     std::array<const char*, 3> cell_descr{"A", "B", "C"};
 
     for (auto i = 0; i < 3; i++)
-    out << fmt::format("{} {:16.8f} {:16.8f} {:16.8f}", cell_descr[i], geom.cell.v[i][0],
-        geom.cell.v[i][1], geom.cell.v[i][2]) << "\n";
+      out << fmt::format("{} {:16.8f} {:16.8f} {:16.8f}", cell_descr[i],geom.cell->v[i][0],
+			 geom.cell->v[i][1], geom.cell->v[i][2]) << "\n";
 
     out << "PERIODIC XYZ\n";
     out << "&END CELL\n";

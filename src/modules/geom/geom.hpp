@@ -87,7 +87,7 @@ The supercell concept generalization for the geometry class looks like:
     objects which need to know about the changes made to geometry.
     Geometry will inform them all when atoms are added, inserted or removed
   */
-
+  /*
   template <class REAL>
   struct geometry_observer {
 
@@ -101,8 +101,36 @@ The supercell concept generalization for the geometry class looks like:
       virtual void shaded (int at, before_after, bool) =0;
       virtual void reordered (const std::vector<int> &, before_after) = 0;
 
+      };*/
+  template <class REAL>
+  struct geometry_observer {
+    virtual uint32_t get_flags(){};
+    virtual void added(before_after, const STRING_EX &,const vector3<REAL> &){};
+    virtual void inserted(int at, before_after, const STRING_EX &, const vector3<REAL> &){};
+    virtual void changed(int at, before_after, const STRING_EX &, const vector3<REAL> &){};
+    virtual void erased(int at, before_after){};
+    virtual void shaded(int at, before_after, bool){};
+    virtual void reordered(const std::vector<int> &, before_after){};
+    virtual void selected(index &sel_at, before_after, bool state){};
+    virtual void dim_changed(before_after){};
+    virtual void cell_changed(before_after){};
+    virtual void xfield_changed(int at, int xid, before_after){};
+    virtual ~geometry_observer(){};
   };
-
+ 
+  const uint32_t geometry_observer_supports_default           = 0;
+  const uint32_t geometry_observer_supports_add               = 1 << 1;
+  const uint32_t geometry_observer_supports_insert            = 1 << 2;
+  const uint32_t geometry_observer_supports_change            = 1 << 3;
+  const uint32_t geometry_observer_supports_erase             = 1 << 4;
+  const uint32_t geometry_observer_supports_shadow            = 1 << 5;
+  const uint32_t geometry_observer_supports_reorder           = 1 << 6;
+  const uint32_t geometry_observer_supports_geom_destroy      = 1 << 7;
+  const uint32_t geometry_observer_supports_dim_change        = 1 << 8;
+  const uint32_t geometry_observer_supports_cell_change       = 1 << 9;
+  const uint32_t geometry_observer_supports_xfield_change     = 1 << 10;
+  const uint32_t geometry_observer_supports_select            = 1 << 11;
+  
   /*! \class geometry
     \brief geometry basically can store atomic symbols and coordinates for a molecule or crystal.
     However, the functionality of geometry class is much more than that.
@@ -607,7 +635,7 @@ The supercell concept generalization for the geometry class looks like:
       //DIM = g.DIM;
       
       // options
-      //auto_update_types = g.auto_update_types;
+      //auto_update_types = g.auto_pdate_types;
       frac = g.frac;
       if (_typetable !=nullptr)
 	{
@@ -639,8 +667,8 @@ The supercell concept generalization for the geometry class looks like:
       frac = G.frac;
     }
     */
-      // ----------------------- Managing observers -----------------------
-
+      // ----------------------- Managing observers -----------------------   
+    
     void add_observer (const std::shared_ptr<DEP>  &d) {
 
         auto it = std::find(observers.begin(), observers.end(), d);
@@ -655,6 +683,22 @@ The supercell concept generalization for the geometry class looks like:
 
       }
 
+     void add_observer_byref ( DEP  &d) {
+       std::shared_ptr<DEP> p(&d);
+       add_observer(p);      
+    }
+    
+    void remove_observer_byref (const DEP &d) {
+        auto i = observers.begin();
+        while(i != observers.end()) {
+	  if ((*i).get()==&d){
+	    observers.erase(i);
+	    break;
+	  }
+	  i++;
+	}
+    }
+    
     void remove_observer (const std::shared_ptr<DEP> &d) {
 
         auto i = observers.begin();
@@ -887,6 +931,12 @@ The supercell concept generalization for the geometry class looks like:
         v.push_back(rl(2));
 
       }
+    
+    virtual void add_fields( const std::vector<fieldtypes> & v){
+      add( std::get<STRING_EX>(v[0]), qpp::vector3<REAL>(std::get<REAL>(v[1]),
+							 std::get<REAL>(v[2]), std::get<REAL>(v[3])));
+    }
+
 
       virtual void set_fields (int j, const std::vector<fieldtypes> & v) {
 
@@ -902,7 +952,6 @@ The supercell concept generalization for the geometry class looks like:
 								std::get<REAL>(v[2]), std::get<REAL>(v[3])));
 
       }
-
 
       std::vector<fieldtypes> operator[](int j) {
         std::vector<fieldtypes> v;

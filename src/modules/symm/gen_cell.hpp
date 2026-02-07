@@ -97,11 +97,15 @@ namespace qpp{
                                     const index & I) const{
       return G(I)*r;
     }
-    void auto_orders(int d=-1) {
+    virtual void auto_orders(int d=-1) {
       if (d==-1)
 	G.auto_orders();
       else
 	G.auto_order(d);
+    }
+    
+    virtual bool pure_translation(){
+      return false;
     }
     /*    
     void auto_orders() {

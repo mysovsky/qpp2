@@ -28,8 +28,8 @@ namespace qpp{
     std::vector<vector3<REAL> > vectors;
     std::vector<vector3<REAL>> colors;
 
-    geom_atom_vectors(geometry<REAL> &__bound_geom = nullptr){
-      bound_geom = &__bound_geom;
+    geom_atom_vectors(geometry<REAL> *__bound_geom=nullptr){
+      bound_geom = __bound_geom;
       if (bound_geom){
 	vectors.resize(bound_geom -> nat());
 	std::fill(vectors.begin(), vectors.end(), vector3<REAL>(0e0));
@@ -43,8 +43,8 @@ namespace qpp{
     }
 
     geom_atom_vectors(const std::vector<vector3<REAL> > & __vectors,
-		      geometry<REAL> & __bound_geom) :
-      vectors(__vectors), bound_geom(&__bound_geom) {
+		      geometry<REAL> * __bound_geom=nullptr) :
+      vectors(__vectors), bound_geom(__bound_geom) {
     }
 
     bool is_valid() const{
@@ -116,8 +116,8 @@ namespace qpp{
       py_indexed_property<  SELF, vector3<REAL>, int,
       		    &SELF::py_getcrs, &SELF::py_setcrs>::py_export(m, xcolname.c_str());
       py::class_<SELF,std::shared_ptr<SELF>>(m,pyname)
-	.def(py::init<geometry<REAL>&>())
-	.def(py::init<const std::vector<vector3<REAL>> &,geometry<REAL>&>())
+	.def(py::init<geometry<REAL>*>())
+	.def(py::init<const std::vector<vector3<REAL>> &,geometry<REAL>*>())
 	.def_readwrite("vectors", &SELF::py_vec)
 	.def_readwrite("colors", &SELF::py_crs);
     }

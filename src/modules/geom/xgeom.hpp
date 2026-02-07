@@ -174,22 +174,41 @@ namespace qpp {
       return 0;
     }      
 
+    void create_table(const std::vector<STRING_EX> & fnames, const std::vector<int> & ftypes,
+		      const std::vector<unsigned char> _add){
+      if (fnames.size()!=ftypes.size())
+	IndexError("number of parameters does not match number o their type specifiers!");
+      field_names = fnames;
+      field_types = ftypes;
+      _additive.clear();
+      for (int i=0; i< ftypes.size(); i++){
+	auto nc = &newcolumn(field_types[i]);
+	//std::cout << "index = " << nc->index() << "\n";
+	_xfields.push_back(*nc);
+	if (_add.size()<=i)
+	  _additive.push_back(_add[i]);
+	else
+	  _additive.push_back(false);
+      }
+    }
+    
     void create_table(const std::vector<STRING_EX> & fnames, const std::vector<STRING_EX> & ftypes){
       if (fnames.size()!=ftypes.size())
 	IndexError("number of parameters does not match number o their type specifiers!");
       field_names = fnames;
       field_types.clear();
+      std::vector<int> ftint;
       for (int i=0; i< ftypes.size(); i++)
-	field_types.push_back(xftype(ftypes[i]));
-      for (int i=0; i< ftypes.size(); i++){
+	ftint.push_back(xftype(ftypes[i]));
+      create_table(fnames,ftint,{});
+      /*      for (int i=0; i< ftypes.size(); i++){
 	auto nc = &newcolumn(field_types[i]);
 	//std::cout << "index = " << nc->index() << "\n";
 	_xfields.push_back(*nc);
 	_additive.push_back(false);
-      }
-      //for (int i=0; i< ftypes.size(); i++) std::cout << field_types[i] <<  " " << _xfields[i].index() << "\n";
+	} */     
     }
-
+    
     void clear_table(){
       _xfields.clear();
       _additive.clear();
@@ -292,6 +311,18 @@ namespace qpp {
 	      int dim=0): geometry<REAL>(dim){
       create_table(fnames,ftypes);      
     }
+
+    xgeometry(int dim, const STRING_EX & _name = ""): geometry<REAL>(dim,_name){
+      create_table({},{});
+    }
+
+    xgeometry(const xgeometry<REAL> & src): geometry<REAL>(src),
+					    field_names(src.field_names), field_types(src.field_types),
+					    _additive(src._additive), _xfields(src._xfields){}
+    
+    void clone(xgeometry<REAL> &dst, const bool copy_data = true) {
+      dst = xgeometry<REAL>(*this);
+    }
     
     void get_format (std::vector<STRING_EX> & fn, std::vector<int> & ft) const
     {
@@ -300,7 +331,12 @@ namespace qpp {
     }
 
     void set_format(const std::vector<STRING_EX> & fn,
-		    const std::vector<int> & ft) {}
+		    const std::vector<int> & ft) {
+      clear_table();
+      create_table(fn,ft,{});
+      for (int i=0; i< nat(); i++)
+	insertline(0);      
+    }
 
     int field_type(int f) const{return field_types[f];}
 
@@ -327,8 +363,22 @@ namespace qpp {
 	return *(T*)nullptr;}
     }
 
-      
-
+    REAL charge(int j) const{
+      int f = findex("charge");
+      if (f==-1)
+	KeyError("This xgeom does not have charge xfield");
+      else
+	return xfield<REAL>(f,j);
+    }
+    
+    REAL & charge(int j){
+      int f = findex("charge");
+      if (f==-1)
+	KeyError("This xgeom does not have charge xfield");
+      else
+	return xfield<REAL>(f,j);
+    }
+    
     template<typename T>
     int setxfield(int at, int f, const T& x)
     {
@@ -341,6 +391,8 @@ namespace qpp {
       }
       return 0;
     }
+
+    
     
     template <typename... Types>
     void fillxfields(int i,  Types... ffields){
@@ -424,6 +476,17 @@ namespace qpp {
       geometry<REAL>::add(a,_x,_y,_z);
       newline();
       fillxfields(nat()-1, ffields...);
+    }
+    
+    virtual void add_fields( const std::vector<fieldtypes> & v){
+      // all fields in one vector v including atom and x,y,z
+      STRING_EX at = std::get<STRING_EX>(v[0]);
+      REAL x = std::get<REAL>(v[1]);
+      REAL y = std::get<REAL>(v[2]);
+      REAL z = std::get<REAL>(v[3]);
+      std::vector<fieldtypes> xv(v.begin()+4,v.end());
+      add(at,x,y,z);
+      set_fields(nat()-1,xv);
     }
 
 

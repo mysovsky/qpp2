@@ -132,23 +132,27 @@ namespace qpp {
 
 
   // ----------------------------------------------------------------------------
-  /*
+  
   template<class REALDST, class REALSRC>
-  void replicate(geometry<REALDST,CELLDST> & dst,
-                 const geometry<REALSRC,CELLSRC> & src,
-                 const CELLSRC & cell,
+  void replicate(geometry<REALDST> & dst,
+                 const geometry<REALSRC> & src,
+                 const periodic_cell<REALSRC> & cell,
                  const index & begin,
                  const index & end,
                  int mode = crowd_ignore) {
 
-    bool xcopy = dst.is_xgeometry() && src.is_xgeometry();
 
     copy_header(dst,src);
-
-    xgeometry<REALSRC,CELLSRC> *xsrc = nullptr;
+    /*
+    xgeometry<REALSRC> *xsrc = nullptr;
     if (src.is_xgeometry())
-      xsrc = (xgeometry<REALSRC,CELLSRC>*)(&src);
+      xsrc = (xgeometry<REALSRC>*)(&src);
+    xgeometry<REALSRC> *xdst = nullptr;
+    if (dst.is_xgeometry())
+      xdst = (xgeometry<REALSRC>*)(&dst);
 
+      bool xcopy = (xsrc && xdst);*/
+/*
     int ix,iy,iz;
     if (xsrc != nullptr)
       for (int i = 0; i < xsrc->nfields(); i++) {
@@ -163,28 +167,30 @@ namespace qpp {
     else {
         ix = 1; iy=2; iz=3;
       }
-
+    */
     for (int at = 0; at < src.nat(); at++)
       if (!src.shadow(at)) {
-          std::vector<datum> v;
-          src.get_fields(at,v);
-          const vector3<REALSRC> & r = src.coord(at);
-          vector3<REALSRC> r1;
-          v[ix].set(&r1(0));
-          v[iy].set(&r1(1));
-          v[iz].set(&r1(2));
-          for (iterator I(begin,end); !I.end(); I++){
-              // fixme - to be replaced with dst.add_fields(v)
-              dst.add("",vector3<REALDST>::Zero());
-              r1 = cell.transform(r,I);
-              dst.set_fields(dst.nat()-1,v);
-            }
+	std::vector<typename xgeometry<REALDST>::fieldtypes > v;
+	src.get_fields(at,v);
+	vector3<REALSRC> r1;
+	std::vector<typename xgeometry<REALDST>::fieldtypes > av(4);
+	av[0]  = src.atom(at);
+	for (auto e:v)
+	  av.push_back(e);
+	for (iterator I(begin,end); !I.end(); I++){
+	  // fixme - to be replaced with dst.add_fields(v)
+	  vector3<REALSRC> r1 =src.pos(at,I);
+	  av[1] = r1[0];
+	  av[2] = r1[1];
+	  av[3] = r1[2];
+	  dst.add_fields(av);
         }
-
+      }
+	
     treat_crowd(dst,mode);
-
+    
   }
-  */
+  
   // -------------------------------------------------------------------------------
 
   template<class REAL>

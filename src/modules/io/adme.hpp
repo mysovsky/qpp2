@@ -22,20 +22,20 @@
 
 namespace qpp {
 
-    template< class REAL, class CELL >
+    template< class REAL>
     void write_adme_ewald_uc(std::basic_ostream<CHAR_EX,TRAITS>  & out,
-                             qpp::geometry<REAL,CELL> & geom) {
+                             qpp::geometry<REAL> & geom) {
 
-        xgeometry<REAL, periodic_cell<REAL> > *xg = nullptr;
-        if (geom.is_xgeometry()) xg = (xgeometry<REAL, periodic_cell<REAL> > *)(&geom);
+        xgeometry<REAL> *xg = nullptr;
+        if (geom.is_xgeometry()) xg = (xgeometry<REAL> *)(&geom);
 
         for (size_t i = 0; i < 3; i++)
             fmt::print(out, "{:15.8f} {:15.8f} {:15.8f} 6 \n",
-                       geom.cell.v[i][0], geom.cell.v[i][1], geom.cell.v[i][2]);
+                       geom.cell->v[i][0], geom.cell->v[i][1], geom.cell->v[i][2]);
 
         for (size_t i = 0; i < geom.nat(); i++) {
 
-                vector3<REAL> frac_c = geom.cell.cart2frac(geom.pos(i));
+                vector3<REAL> frac_c = geom.cell->cart2frac(geom.pos(i));
 
                 fmt::print(out,
                            "{:15.8f} {:15.8f} {:15.8f} {:15.8f} {}\n",

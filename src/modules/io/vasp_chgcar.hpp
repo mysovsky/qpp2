@@ -23,9 +23,9 @@
 
 namespace qpp {
 
-  template<class REAL, class CELL>
+  template<class REAL>
   void read_vasp_chgcar(std::basic_istream<CHAR_EX,TRAITS> & inp,
-                        geometry<REAL, CELL> &geom,
+                        geometry<REAL> &geom,
                         std::vector<scalar_volume_t<REAL>> &volumes) {
 
     STRING_EX poscar_header,
@@ -71,9 +71,9 @@ namespace qpp {
     STRING_EX poscar_coord_type_t = tolower(poscar_coord_type);
 
     //Construct cell
-    geom.cell.v[0] = va;
-    geom.cell.v[1] = vb;
-    geom.cell.v[2] = vc;
+    geom.cell->v[0] = va;
+    geom.cell->v[1] = vb;
+    geom.cell->v[2] = vc;
 
     for (int i = 0; i < atypes_c; i++) {
 
@@ -106,7 +106,7 @@ namespace qpp {
       throw parsing_error_t(cur_line, poscar_arecord, "Invalid CHGCAR file");
 
     // read volume data
-    REAL cell_volume = ((geom.cell.v[0]).cross(geom.cell.v[1])).dot(geom.cell.v[2]);
+    REAL cell_volume = ((geom.cell->v[0]).cross(geom.cell->v[1])).dot(geom.cell->v[2]);
 
     //read empty line
     sgetline(inp, _str, cur_line);
@@ -122,9 +122,9 @@ namespace qpp {
     volumes.resize(1);
     volumes[0].m_field.resize(nx*ny*nz, 0);
     volumes[0].m_offset = vector3<REAL>{0, 0, 0};
-    volumes[0].m_axis[0] = geom.cell.v[0] / nx;
-    volumes[0].m_axis[1] = geom.cell.v[1] / ny;
-    volumes[0].m_axis[2] = geom.cell.v[2] / nz;
+    volumes[0].m_axis[0] = geom.cell->v[0] / nx;
+    volumes[0].m_axis[1] = geom.cell->v[1] / ny;
+    volumes[0].m_axis[2] = geom.cell->v[2] / nz;
     volumes[0].m_steps[0] = nx;
     volumes[0].m_steps[1] = ny;
     volumes[0].m_steps[2] = nz;

@@ -228,6 +228,12 @@ namespace qpp {
       return res;
     }
 
+    bool is_zero() const {
+      for (int d=0; d<DIM; d++)
+	if ((*this)(d)!=0)
+	  return false;
+      return true;
+    }
 
     inline bool operator!= (const index &I) const {
       return ! ((*this) == I);

@@ -22,9 +22,9 @@
 
 namespace qpp {
 
-  template< class REAL, class CELL >
+  template< class REAL >
   void write_raw_coord(std::basic_ostream<CHAR_EX,TRAITS>  & out,
-                       qpp::geometry<REAL,CELL> & geom) {
+                       qpp::geometry<REAL> & geom) {
 
     for (size_t i = 0; i < geom.nat(); i++)
       fmt::print(out,
@@ -34,9 +34,9 @@ namespace qpp {
                  geom.pos(i)[2]);
   }
 
-  template< class REAL, class CELL >
+  template< class REAL>
   void write_atoms_with_coord(std::basic_ostream<CHAR_EX,TRAITS>  & out,
-                                   qpp::geometry<REAL,CELL> & geom) {
+                                   qpp::geometry<REAL> & geom) {
 
     for (size_t i = 0; i < geom.nat(); i++)
       fmt::print(out,
@@ -45,12 +45,12 @@ namespace qpp {
                  geom.pos(i)[0], geom.pos(i)[1], geom.pos(i)[2]);
   }
 
-  template< class REAL, class CELL >
+  template< class REAL>
   void write_atoms_with_coord_and_chg(std::basic_ostream<CHAR_EX,TRAITS>  & out,
-                                      qpp::geometry<REAL,CELL> & geom) {
+                                      qpp::geometry<REAL> & geom) {
 
-    xgeometry<REAL, periodic_cell<REAL> > *xg = nullptr;
-    if (geom.is_xgeometry()) xg = (xgeometry<REAL, periodic_cell<REAL> > *)(&geom);
+    xgeometry<REAL> *xg = nullptr;
+    if (geom.is_xgeometry()) xg = (xgeometry<REAL> *)(&geom);
 
     for (size_t i = 0; i < geom.nat(); i++)
       fmt::print(out,

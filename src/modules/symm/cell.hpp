@@ -270,6 +270,14 @@ namespace qpp {
       return solve3(A, r);
 
     }
+    
+    virtual void auto_orders(int d=-1) {
+      TypeError("For periodic_cell auto_orders makes no sense. The orders would be infinite");
+    }
+
+    virtual bool pure_translation(){
+      return true;
+    }
 
       // -----------------------------------------------------------------------
 
@@ -330,6 +338,20 @@ namespace qpp {
         return res;
 
       }
+
+    bool within_eps_b(const vector3<REAL> &r, const REAL eps) const {
+      
+      vector3<REAL> f = cart2frac(r);
+      bool res = true;
+      for (int d = 0; d < DIM; d++)
+	if ((f[d] < -eps) || (f[d] > 1 + eps)) {
+	  res = false;
+	  break;
+	}
+      return res;
+      
+    }
+
 
       /*! \brief Answers the question whether r belongs to Wigner-Zeitz
       * unit cell

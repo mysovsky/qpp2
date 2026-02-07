@@ -23,17 +23,17 @@ namespace py = pybind11;
 
 namespace qpp {
 
-template <class REAL, class CELL = periodic_cell<REAL> >
+template <class REAL >
 class extents_observer_t : public geometry_observer<REAL> {
 public:
 
   aabb_3d_t<REAL> aabb;
-  geometry<REAL, CELL> * geom;
+  geometry<REAL> * geom;
   bool first_data;
 
-  extents_observer_t( geometry<REAL, CELL> & g) {
+  extents_observer_t( geometry<REAL> & g) {
     geom = &g;
-    geom->add_observer(*this);
+    geom->add_observer(std::shared_ptr<extents_observer_t<REAL> >(this));
     first_data = true;
     aabb.max = vector3<REAL>(0.0, 0.0, 0.0);
     aabb.min = vector3<REAL>(0.0, 0.0, 0.0);
@@ -81,7 +81,7 @@ public:
   void erased(int at, before_after st) override {}
   void shaded(int at, before_after st, bool sh) override {}
   void reordered(const std::vector<int> &, before_after) override {}
-  void selected(atom_index_set_key &sel_at, before_after, bool state) override {}
+  void selected( index &sel_at, before_after, bool state) override {}
   void dim_changed(before_after ord) override {}
   void cell_changed(before_after ord) override {}
   void xfield_changed(int at, int xid, before_after) override {}

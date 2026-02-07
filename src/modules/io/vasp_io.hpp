@@ -113,7 +113,7 @@ namespace qpp {
   }
 
   ///
-  template<class REAL, class CELL>
+  template<class REAL>
   void read_vasp_outcar_md_with_frames(
       std::basic_istream<CHAR_EX,TRAITS> & inp,
       geometry<REAL> &geom,
@@ -321,7 +321,7 @@ namespace qpp {
       } //end while
 
     //loadout first frame into geometry
-    geom.set_DIM(3);
+    geom.cell = std::make_shared<periodic_cell<REAL>>(periodic_cell<REAL>(3));
 
     for (size_t i = 0; i < atom_lookup_v.size(); i++) {
 
@@ -334,9 +334,9 @@ namespace qpp {
 
       }
 
-    geom.cell.v[0] = cells[0][0];
-    geom.cell.v[1] = cells[0][1];
-    geom.cell.v[2] = cells[0][2];
+    geom.cell->v[0] = cells[0][0];
+    geom.cell->v[1] = cells[0][1];
+    geom.cell->v[2] = cells[0][2];
 
     //postproces animation to fight with riot atoms
     for (size_t i = 1; i < anim_md.frames.size(); i++) {
@@ -345,10 +345,9 @@ namespace qpp {
             //index min_dist_index = index::D(geom.DIM).all(0);
             float min_dist = 100.0f;
             vector3<REAL> goal_vector = anim_md.frames[i].atom_pos[ac];
-            for (iterator idx(index::D(geom.get_DIM()).all(-1),
-                              index::D(geom.get_DIM()).all(1)); !idx.end(); idx++ ) {
-                vector3<REAL> t_pos_cf = geom.cell.transform(
-                                           anim_md.frames[i].atom_pos[ac], idx);
+            for (iterator idx(index::D(geom.DIM()).all(-1),
+                              index::D(geom.DIM()).all(1)); !idx.end(); idx++ ) {
+                vector3<REAL> t_pos_cf = geom.cell->transform(anim_md.frames[i].atom_pos[ac], idx);
                 REAL dist = (anim_md.frames[i-1].atom_pos[ac] - t_pos_cf).norm();
                 if (dist < min_dist) {
                     min_dist = dist;

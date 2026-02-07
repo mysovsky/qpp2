@@ -166,7 +166,7 @@ namespace qpp {
       }
   }
 
-  template<class REAL, class CELL>
+  template<class REAL>
   void read_xyzq_wrp_def(std::basic_istream<CHAR_EX,TRAITS> & inp,
                          xgeometry<REAL> & geom) {
     read_xyzq(inp, geom, true);

@@ -292,7 +292,7 @@ namespace qpp {
 
   template <class REAL>
   bool compile_geometry(comp_chem_program_data_t<REAL> &ccd_inst,
-                        geometry<REAL, periodic_cell<REAL> > &g,
+                        geometry<REAL> &g,
                         uint32_t compile_flags = ccd_cf_default_flags) {
 
     if ((ccd_inst.m_init_apos.empty() || ccd_inst.m_init_anames.empty())
@@ -309,15 +309,15 @@ namespace qpp {
     //g.DIM = ccd_inst.m_DIM;
 
     if (g.DIM() > 0)
-      for (size_t i = 0; i < ccd_inst.m_DIM; i++) g.cell.v[i] = ccd_inst.m_cell_v[i];
+      for (size_t i = 0; i < ccd_inst.m_DIM; i++) g.cell->v[i] = ccd_inst.m_cell_v[i];
 
     for (size_t i = 0; i < ccd_inst.m_init_anames.size(); i++)
       g.add(ccd_inst.m_init_anames[i], ccd_inst.m_init_apos[i]);
 
     if (ccd_inst.m_init_achg.size() == ccd_inst.m_tot_nat && g.is_xgeometry()) {
 
-        xgeometry<REAL, periodic_cell<REAL> > *xsrc = nullptr;
-        xsrc = (xgeometry<REAL, periodic_cell<REAL> >*)(&g);
+        xgeometry<REAL > *xsrc = nullptr;
+        xsrc = (xgeometry<REAL >*)(&g);
 
         if (xsrc)
           for (size_t q = 0; q < xsrc->nat(); q++) xsrc->charge(q) = ccd_inst.m_init_achg[q];
@@ -335,7 +335,7 @@ namespace qpp {
 
     geom_anim_record_t<REAL> anim;
 
-    anim.m_anim_type = geom_anim_t::anim_static;
+    anim.m_anim_type = geom_anim_e::anim_static;
     anim.m_anim_name = "static";
     anim.frames.resize(1);
     anim.frames[0].atom_pos.resize(ccd_inst.m_init_apos.size());
@@ -360,37 +360,37 @@ namespace qpp {
 
     bool copy_steps_content = false;
 
-    geom_anim_t stored_anim_type{geom_anim_t::anim_static};
+    geom_anim_e stored_anim_type{geom_anim_e::anim_static};
     std::string stored_anim_name;
 
     switch (ccd_inst.m_run_t) {
 
       case comp_chem_program_run_e::rt_geo_opt :
-        stored_anim_type = geom_anim_t::anim_geo_opt;
+        stored_anim_type = geom_anim_e::anim_geo_opt;
         copy_steps_content = true;
         stored_anim_name = "geo_opt";
         break;
 
       case comp_chem_program_run_e::rt_cell_opt :
-        stored_anim_type = geom_anim_t::anim_generic;
+        stored_anim_type = geom_anim_e::anim_generic;
         copy_steps_content = true;
         stored_anim_name = "cell_opt";
         break;
 
       case comp_chem_program_run_e::rt_md :
-        stored_anim_type = geom_anim_t::anim_md;
+        stored_anim_type = geom_anim_e::anim_md;
         copy_steps_content = true;
         stored_anim_name = "mol_dyn";
         break;
 
       case comp_chem_program_run_e::rt_vib :
-        stored_anim_type = geom_anim_t::anim_vib;
+        stored_anim_type = geom_anim_e::anim_vib;
         copy_steps_content = false;
         stored_anim_name = "vib";
         break;
 
       case comp_chem_program_run_e::rt_raman :
-        stored_anim_type = geom_anim_t::anim_vib;
+        stored_anim_type = geom_anim_e::anim_vib;
         copy_steps_content = false;
         stored_anim_name = "vib";
         break;

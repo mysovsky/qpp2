@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <iostream>
 #include <mathf/lace3d.hpp>
+#include <io/simplefun.hpp>
 #include <string_view>
 #if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)
 
