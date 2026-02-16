@@ -185,7 +185,7 @@ namespace qpp {
 	auto nc = &newcolumn(field_types[i]);
 	//std::cout << "index = " << nc->index() << "\n";
 	_xfields.push_back(*nc);
-	if (_add.size()<=i)
+	if (_add.size()>i)
 	  _additive.push_back(_add[i]);
 	else
 	  _additive.push_back(false);

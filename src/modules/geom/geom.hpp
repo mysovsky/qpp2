@@ -188,14 +188,15 @@ The supercell concept generalization for the geometry class looks like:
     }
 
     inline STRING_EX atom_name (int t) const {
-      if (t<0)
-	t+= _atm_types.size();
-      if (t<0|| t>= _atm_types.size())
-	IndexError("atomic type out of range");
-      return _atm_types[_type_table[t]];
+      return atomic_type(t);
     }
-
-    inline int type(int i){
+    
+    inline STRING_EX atom_name_by_idx (int i) const {
+      size_t t = type(i);
+      return atomic_type(t);
+    }
+    
+    inline int type(int i) const{
       if (i<0)
 	i+= geom.nat();
       if (i<0|| i>=geom.nat())
@@ -203,12 +204,8 @@ The supercell concept generalization for the geometry class looks like:
       return _type_table[i];
     }
 
-    inline int operator()(int i){
-      if (i<0)
-	i+= geom.nat();
-      if (i<0|| i>=geom.nat())
-	IndexError("atom out of range");
-      return _type_table[i];
+    inline int operator()(int i) const{
+      return type(i);
     }
 
     //! Synonim for type_of_atom(const STRING_EX & at)
@@ -363,6 +360,7 @@ The supercell concept generalization for the geometry class looks like:
 	.def( "type_of_atom", &SELF::type_of_atom)
 	.def("n_atom_types",  &SELF::n_atom_types)
 	.def("atomic_type",   &SELF::atomic_type)
+	.def("type",          &SELF::type)
 	.def("define_type",   &SELF::define_type)
 	.def("atom_count_by_type",  &SELF:: atom_count_by_type)
 	.def("symmetrize_radius", &SELF::symmetrize_radius)

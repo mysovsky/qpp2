@@ -58,7 +58,7 @@ struct query_ray_add_ignore_img {
 };
 
 /// tws tree node forward declaration
-template<typename REAL, typename AINT>
+template<typename REAL, typename AINT = size_t>
 struct tws_node_t;
 
 /// data to store in twstree
@@ -104,11 +104,11 @@ struct tws_query_data_t {
     m_atm = atm; m_idx = idx; m_dist = dist;
   }
   bool operator == (const tws_query_data_t<REAL, AINT> &a){
-    return (m_idx == a.idx) && (m_atm == a.atm);
+    return (m_idx == a.m_idx) && (m_atm == a.m_atm);
   }
 };
 
-template<typename REAL, typename AINT>
+template<typename REAL, typename AINT = size_t>
 bool tws_query_data_sort_by_dist(const tws_query_data_t<REAL, AINT> &a,
                                  const tws_query_data_t<REAL, AINT> &b) {
   return a.m_dist < b.m_dist;
@@ -724,7 +724,7 @@ const uint32_t act_unlock_img        = 1 << 16;
 
 	    bool atom_hidden = false;
 	    if (!hidden_types.empty()) {
-	      auto it = hidden_types.find(geom->type_of_atom(nc.m_atm));
+	      auto it = hidden_types.find(geom->typetable()->type(nc.m_atm));
 	      if (it != hidden_types.end())
 		atom_hidden = true;
 	    }
