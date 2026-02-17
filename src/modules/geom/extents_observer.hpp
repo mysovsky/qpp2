@@ -33,7 +33,7 @@ public:
 
   extents_observer_t( geometry<REAL> & g) {
     geom = &g;
-    geom->add_observer(std::shared_ptr<extents_observer_t<REAL> >(this));
+    geom->add_observer(*this);
     first_data = true;
     aabb.max = vector3<REAL>(0.0, 0.0, 0.0);
     aabb.min = vector3<REAL>(0.0, 0.0, 0.0);

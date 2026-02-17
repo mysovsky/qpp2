@@ -41,7 +41,7 @@ if(PYTHON_BINDINGS)
         pyqpp/pyqpp_autosymm.cpp
         #pyqpp/pyqpp_basis_ecp.cpp
         #pyqpp/pyqpp_molecule.cpp
-        #pyqpp/pyqpp_ptable.cpp
+        pyqpp/pyqpp_ptable.cpp
 	pyqpp/pyqpp_io.cpp
         #pyqpp/pyqpp_gmsio.cpp
         #pyqpp/pyqpp_ccd.cpp
@@ -49,7 +49,7 @@ if(PYTHON_BINDINGS)
         data/errors.cpp
         data/data.cpp
         data/types.cpp
-        #data/ptable.cpp
+        data/ptable.cpp
         symm/index.cpp
         io/strfun.cpp
 	symm/cell.cpp

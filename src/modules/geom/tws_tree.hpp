@@ -294,12 +294,12 @@ const uint32_t act_unlock_img        = 1 << 16;
 
     explicit tws_tree_t(xgeometry<REAL> &g) {
       geom = &g;
-      geom->add_observer(std::shared_ptr<tws_tree_t<REAL> >(this));
+      geom->add_observer(*this);
     }
 
     ~tws_tree_t() {
-      if (geom)
-	geom->remove_observer(std::shared_ptr<tws_tree_t<REAL> >(this));
+      //      if (geom)
+      //geom->remove_observer(std::shared_ptr<tws_tree_t<REAL> >(this));
     }
 
     std::optional<size_t> find_bond_rec(const int atm_base, const int atm_bnd, const index &idx) {

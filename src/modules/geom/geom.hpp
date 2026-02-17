@@ -102,22 +102,6 @@ The supercell concept generalization for the geometry class looks like:
       virtual void reordered (const std::vector<int> &, before_after) = 0;
 
       };*/
-  template <class REAL>
-  struct geometry_observer {
-    virtual uint32_t get_flags(){};
-    virtual void added(before_after, const STRING_EX &,const vector3<REAL> &){};
-    virtual void inserted(int at, before_after, const STRING_EX &, const vector3<REAL> &){};
-    virtual void changed(int at, before_after, const STRING_EX &, const vector3<REAL> &){};
-    virtual void erased(int at, before_after){};
-    virtual void shaded(int at, before_after, bool){};
-    virtual void reordered(const std::vector<int> &, before_after){};
-    virtual void selected(index &sel_at, before_after, bool state){};
-    virtual void dim_changed(before_after){};
-    virtual void cell_changed(before_after){};
-    virtual void xfield_changed(int at, int xid, before_after){};
-    virtual ~geometry_observer(){};
-  };
- 
   const uint32_t geometry_observer_supports_default           = 0;
   const uint32_t geometry_observer_supports_add               = 1 << 1;
   const uint32_t geometry_observer_supports_insert            = 1 << 2;
@@ -131,6 +115,23 @@ The supercell concept generalization for the geometry class looks like:
   const uint32_t geometry_observer_supports_xfield_change     = 1 << 10;
   const uint32_t geometry_observer_supports_select            = 1 << 11;
   
+
+  template <class REAL>
+  struct geometry_observer {
+    virtual uint32_t get_flags(){return geometry_observer_supports_default;};
+    virtual void added(before_after, const STRING_EX &,const vector3<REAL> &){};
+    virtual void inserted(int at, before_after, const STRING_EX &, const vector3<REAL> &){};
+    virtual void changed(int at, before_after, const STRING_EX &, const vector3<REAL> &){};
+    virtual void erased(int at, before_after){};
+    virtual void shaded(int at, before_after, bool){};
+    virtual void reordered(const std::vector<int> &, before_after){};
+    virtual void selected(index &sel_at, before_after, bool state){};
+    virtual void dim_changed(before_after){};
+    virtual void cell_changed(before_after){};
+    virtual void xfield_changed(int at, int xid, before_after){};
+    virtual ~geometry_observer(){};
+  };
+ 
   /*! \class geometry
     \brief geometry basically can store atomic symbols and coordinates for a molecule or crystal.
     However, the functionality of geometry class is much more than that.
@@ -148,17 +149,22 @@ The supercell concept generalization for the geometry class looks like:
     geometry<REAL> & geom;
     
   public:
-    bool auto_update;
     bool auto_symmetrize;
     REAL default_symmetrize_radius;
     typedef geometry_type_table<REAL> SELF;
+    bool auto_update;
+
+    void set_auto_update(bool u){
+      auto_update=u;
+    }
 
     geometry_type_table(geometry<REAL>& g, bool aupd = false):geom(g){      
-      auto_update = aupd;
+      set_auto_update(aupd);
       auto_symmetrize = false;
       default_symmetrize_radius = 0e0;
     }
 
+   
     //! Number of atomic type for atom named at
     inline int type_of_atom (const STRING_EX & at) const {
 
@@ -321,7 +327,8 @@ The supercell concept generalization for the geometry class looks like:
     virtual void added (before_after ba, const STRING_EX &at,
 			const vector3<REAL> &r)
     {
-      //      std::cout << "added "<< at << " "<< ba << "\n";
+      //std::cout << "added "<< at << " "<< ba << "\n";
+      
       if (!auto_update || ba == before) return;
       _type_table.push_back(define_type(at));
       _symm_rad.push_back(default_symmetrize_radius);
@@ -329,6 +336,7 @@ The supercell concept generalization for the geometry class looks like:
     
     virtual void inserted (int i, before_after ba,
 			   const STRING_EX &at, const vector3<REAL> &){
+      
       if (!auto_update || ba == before) return;
       _type_table.insert(_type_table.begin()+i,define_type(at));
       _symm_rad.insert(_symm_rad.begin()+i,default_symmetrize_radius);
@@ -420,7 +428,7 @@ The supercell concept generalization for the geometry class looks like:
     
   protected:
     // The dependent objects array
-    std::vector<std::shared_ptr<geometry_observer<REAL>>> observers;
+    std::vector<geometry_observer<REAL>*> observers;
     bool has_observers;
     
   public:    
@@ -564,12 +572,13 @@ The supercell concept generalization for the geometry class looks like:
     {
       _typetable  = std::make_shared<geometry_type_table<REAL>>(geometry_type_table<REAL>(*this));
       _typetable->build();
-      add_observer(_typetable);
+      add_observer(*_typetable.get());
     }
 
     void set_typetable(std::shared_ptr<geometry_type_table<REAL>> tt){
+      remove_observer(*_typetable.get());
       _typetable = tt;
-      add_observer(_typetable);
+      add_observer(*_typetable.get());
     }
 
 
@@ -667,22 +676,17 @@ The supercell concept generalization for the geometry class looks like:
     */
       // ----------------------- Managing observers -----------------------   
     
-    void add_observer (const std::shared_ptr<DEP>  &d) {
+    void add_observer (DEP  &d) {
 
-        auto it = std::find(observers.begin(), observers.end(), d);
-
-        if (it != observers.end()) {
-            has_observers = true;
-            return;
-          }
-
-        observers.push_back(d);
-        has_observers = true;
-
-      }
-
+      has_observers = true;
+      auto it = std::find(observers.begin(), observers.end(), &d);
+      if (it != observers.end())
+	return;
+      observers.push_back(&d);
+    }
+    /*
      void add_observer_byref ( DEP  &d) {
-       std::shared_ptr<DEP> p(&d);
+       std::shared_ptr<DEP> p(&d, [](DEP *x){});
        add_observer(p);      
     }
     
@@ -696,13 +700,13 @@ The supercell concept generalization for the geometry class looks like:
 	  i++;
 	}
     }
-    
-    void remove_observer (const std::shared_ptr<DEP> &d) {
+    */
+    void remove_observer (DEP &d) {
 
         auto i = observers.begin();
 
         while(i != observers.end()) {
-            if (*i == d) {
+            if (*i == &d) {
                 observers.erase(i);
                 break;
               }
@@ -711,21 +715,20 @@ The supercell concept generalization for the geometry class looks like:
 
         if (observers.size()==0)
           has_observers = false;
-
       }
 
-    std::shared_ptr<DEP> get_observer(int i){
+    DEP* get_observer(int i){
       return observers[i];
     }
 
     int n_observers()const{return observers.size();}
     
-    void  set_observer(int i,const  std::shared_ptr<DEP>  &d){
+    void  set_observer(int i, DEP* const &d){
       observers[i] = d;
     }
 
 #if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)    
-    py_indexed_property<SELF,std::shared_ptr<DEP>,int, &SELF::get_observer, &SELF::set_observer> py_observer;
+    py_indexed_property<SELF,DEP*,int, &SELF::get_observer, &SELF::set_observer> py_observer;
 
 #endif
       // ----------------------- Manipulations with atoms -----------------------
@@ -1206,7 +1209,7 @@ The supercell concept generalization for the geometry class looks like:
             &SELF::py_setsymmrad>::py_export(m, sPropNameSymRad.c_str());
 
 	std::string sPropObsrv=fmt::format("{0}_{1}",pyname,"idx_prop_obsrv");
-	py_indexed_property<SELF,std::shared_ptr<DEP>,int, &SELF::get_observer, &SELF::set_observer>::
+	py_indexed_property<SELF,DEP*,int, &SELF::get_observer, &SELF::set_observer>::
 	  py_export(m,sPropObsrv.c_str());
       }
 

@@ -401,11 +401,11 @@ namespace qpp {
 
       void set_auto_update(bool au){
         if (au && !auto_update){
-	  geom->add_observer(std::shared_ptr<SELF>(this));
+	  geom->add_observer(*this);
             auto_update = true;
           }
         else if (!au && auto_update){
-	  geom->remove_observer(std::shared_ptr<SELF>(this));
+	  geom->remove_observer(*this);
             auto_update = false;
           }
       }
