@@ -305,20 +305,31 @@ namespace qpp {
     xgeometry(const std::vector<STRING_EX> & fnames, const std::vector<STRING_EX> & ftypes,
 	      CELL & __cell = periodic_cell<REAL>(0)): geometry<REAL>(__cell){
       create_table(fnames,ftypes);
+      py_xfield.bind(this);
+      py_additive.bind(this);
+
     }
     
     xgeometry(const std::vector<STRING_EX> & fnames, const std::vector<STRING_EX> & ftypes,
 	      int dim=0): geometry<REAL>(dim){
-      create_table(fnames,ftypes);      
+      create_table(fnames,ftypes);
+      py_xfield.bind(this);
+      py_additive.bind(this);
+
     }
 
     xgeometry(int dim, const STRING_EX & _name = ""): geometry<REAL>(dim,_name){
       create_table({},{});
+      py_xfield.bind(this);
+      py_additive.bind(this);
     }
 
     xgeometry(const xgeometry<REAL> & src): geometry<REAL>(src),
 					    field_names(src.field_names), field_types(src.field_types),
-					    _additive(src._additive), _xfields(src._xfields){}
+					    _additive(src._additive), _xfields(src._xfields){
+      py_xfield.bind(this);
+      py_additive.bind(this);
+    }
     
     void clone(xgeometry<REAL> &dst, const bool copy_data = true) {
       dst = xgeometry<REAL>(*this);
@@ -682,6 +693,7 @@ namespace qpp {
       */
       if (j<0)
 	j += nat();
+      std::cout << i<< " "<< j << " " << nat() << " " << nfields() << "\n";
       if (j<0|| j>=nat())
 	IndexError("out or range atom number");
       if (i<0)
