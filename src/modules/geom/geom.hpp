@@ -1314,7 +1314,7 @@ The supercell concept generalization for the geometry class looks like:
       erase(ats);
     }
 
-      virtual py::list py_getitem (int i) const {
+    virtual py::list py_getitem (int i) const {
 
         if (i<0)
           i+=nat();

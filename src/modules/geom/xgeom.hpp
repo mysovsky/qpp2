@@ -11,7 +11,7 @@
 namespace py = pybind11;
 #pragma pop_macro("slots")
 #endif
-
+#include <cassert>
 #include <data/types.hpp>
 #include <data/errors.hpp>
 #include <data/data.hpp>
@@ -300,35 +300,6 @@ namespace qpp {
 	if (f==field_names[i])
 	  return i;
       return -1;
-    }
-    
-    xgeometry(const std::vector<STRING_EX> & fnames, const std::vector<STRING_EX> & ftypes,
-	      CELL & __cell = periodic_cell<REAL>(0)): geometry<REAL>(__cell){
-      create_table(fnames,ftypes);
-      py_xfield.bind(this);
-      py_additive.bind(this);
-
-    }
-    
-    xgeometry(const std::vector<STRING_EX> & fnames, const std::vector<STRING_EX> & ftypes,
-	      int dim=0): geometry<REAL>(dim){
-      create_table(fnames,ftypes);
-      py_xfield.bind(this);
-      py_additive.bind(this);
-
-    }
-
-    xgeometry(int dim, const STRING_EX & _name = ""): geometry<REAL>(dim,_name){
-      create_table({},{});
-      py_xfield.bind(this);
-      py_additive.bind(this);
-    }
-
-    xgeometry(const xgeometry<REAL> & src): geometry<REAL>(src),
-					    field_names(src.field_names), field_types(src.field_types),
-					    _additive(src._additive), _xfields(src._xfields){
-      py_xfield.bind(this);
-      py_additive.bind(this);
     }
     
     void clone(xgeometry<REAL> &dst, const bool copy_data = true) {
@@ -758,43 +729,10 @@ namespace qpp {
 	}
     }
     
-    py_2indexed_property<SELF,py::object, py::object, int,  &SELF::py_getfield1, &SELF::py_setfield1,
+    py_2indexed_property<SELF,py::object, py::object, int,
+			 &SELF::py_getfield1, &SELF::py_setfield1,
 			 &SELF::py_getfield, &SELF::py_setfield > py_xfield;
     
-    xgeometry(CELL & __cell, const py::dict& header ):
-      geometry<REAL>(__cell)
-    {      
-      std::vector<STRING_EX> fnames;
-      std::vector<STRING_EX> ftypes;
-      for (auto it : header){
-	fnames.push_back(py::cast<STRING_EX>(it.first));
-	ftypes.push_back(py::cast<STRING_EX>(it.second));
-      }
-      create_table(fnames,ftypes);
-      py_xfield.bind(this);
-      py_additive.bind(this);
-    }
-    
-    xgeometry(int dim, const py::dict& header):geometry<REAL>(dim)
-    {
-      std::vector<STRING_EX> fnames;
-      std::vector<STRING_EX> ftypes;
-      for (auto it : header){
-	fnames.push_back(py::cast<STRING_EX>(it.first));
-	ftypes.push_back(py::cast<STRING_EX>(it.second));
-      }
-      create_table(fnames,ftypes);
-      py_xfield.bind(this);
-      py_additive.bind(this);
-    }
-
-    void py_erase1(int at){
-      erase(at);
-    }
-
-    void py_erase2(const std::vector<int> &ats){
-      erase(ats);
-    }
     
     bool py_getadd (int f) {
         if (f<0) f+=nfields();
@@ -810,7 +748,85 @@ namespace qpp {
 
     py_indexed_property< SELF, bool, int,
 			 &SELF::py_getadd, &SELF::py_setadd> py_additive;
+
+#endif
     
+    xgeometry(CELL & __cell, const py::dict& header ):
+      geometry<REAL>(__cell)
+    {      
+      std::vector<STRING_EX> fnames;
+      std::vector<STRING_EX> ftypes;
+      for (auto it : header){
+	fnames.push_back(py::cast<STRING_EX>(it.first));
+	ftypes.push_back(py::cast<STRING_EX>(it.second));
+      }
+      create_table(fnames,ftypes);
+#if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)
+      py_xfield.bind(this);
+      py_additive.bind(this);
+#endif
+    }
+    
+    xgeometry(int dim, const py::dict& header):geometry<REAL>(dim)
+    {
+      std::vector<STRING_EX> fnames;
+      std::vector<STRING_EX> ftypes;
+      for (auto it : header){
+	fnames.push_back(py::cast<STRING_EX>(it.first));
+	ftypes.push_back(py::cast<STRING_EX>(it.second));
+      }
+      create_table(fnames,ftypes);
+#if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)
+      py_xfield.bind(this);
+      py_additive.bind(this);
+#endif
+    }
+    
+    xgeometry(const std::vector<STRING_EX> & fnames, const std::vector<STRING_EX> & ftypes,
+	      CELL & __cell = periodic_cell<REAL>(0)): geometry<REAL>(__cell){
+      create_table(fnames,ftypes);
+#if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)
+      py_xfield.bind(this);
+      py_additive.bind(this);
+#endif
+
+    }
+    
+    xgeometry(const std::vector<STRING_EX> & fnames, const std::vector<STRING_EX> & ftypes,
+	      int dim=0): geometry<REAL>(dim){
+      create_table(fnames,ftypes);
+#if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)
+      py_xfield.bind(this);
+      py_additive.bind(this);
+#endif
+
+    }
+
+    xgeometry(int dim, const STRING_EX & _name = ""): geometry<REAL>(dim,_name){
+      create_table({},{});
+#if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)
+      py_xfield.bind(this);
+      py_additive.bind(this);
+#endif
+    }
+
+    xgeometry(const xgeometry<REAL> & src): geometry<REAL>(src),
+					    field_names(src.field_names), field_types(src.field_types),
+					    _additive(src._additive), _xfields(src._xfields){
+#if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)
+      py_xfield.bind(this);
+      py_additive.bind(this);
+#endif
+    }
+    
+#if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)
+    void py_erase1(int at){
+      erase(at);
+    }
+
+    void py_erase2(const std::vector<int> &ats){
+      erase(ats);
+    }
     static void py_export(py::module m, const char * pyname) {
       STRING_EX  xfldname = fmt::format("{0}_{1}",pyname,"fld_indexed_property");
       STRING_EX  xaddname = fmt::format("{0}_{1}",pyname,"add_indexed_property");

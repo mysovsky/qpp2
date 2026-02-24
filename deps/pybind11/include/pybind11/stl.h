@@ -10,6 +10,7 @@
 #pragma once
 
 #include "pybind11.h"
+#include <cassert>
 #include <set>
 #include <unordered_set>
 #include <map>

@@ -128,7 +128,8 @@ namespace qpp {
     type_bool   = 8,
     type_string = 16,
     type_array  = 32,
-    type_qpp_geometry = 64
+    type_qpp_geometry = 64,
+    type_qpp_atom_vectors=128
   };
 
   class type_data{
