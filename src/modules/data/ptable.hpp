@@ -33,6 +33,8 @@ namespace qpp {
       vector3<float> m_color_gv;
       vector3<float> m_color_cpk;
 
+	  float m_color_alpha;
+
       std::vector<std::tuple<int,std::string,int> > m_elec_conf;
 
       STRING_EX    m_name;

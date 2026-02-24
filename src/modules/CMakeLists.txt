@@ -16,11 +16,14 @@ endif()
 
 add_dependencies(qpp ${QPP_DEPS})
 
+target_include_directories(qpp PRIVATE ${Python_INCLUDE_DIRS})
+target_link_libraries(qpp PRIVATE pybind11::headers)
+
 if(NOT MSVC)
   set(QPP_LINK_LIB m)
 endif()
 
-target_link_libraries(qpp ${QPP_LINK_LIB})
+target_link_libraries(qpp PRIVATE ${QPP_LINK_LIB})
 
 #set(IOPY io/io.py.cpp io/geomio.py.cpp io/gmsio.py.cpp)
 
@@ -57,6 +60,8 @@ if(PYTHON_BINDINGS)
     set_target_properties(pyqpp PROPERTIES COMPILE_FLAGS "-DPY_EXPORT")
     set_target_properties(pyqpp PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
     set_target_properties(pyqpp PROPERTIES PREFIX "")
+
+    target_link_libraries(pyqpp PRIVATE qpp)
 
     install(TARGETS pyqpp DESTINATION ${CMAKE_INSTALL_LIBDIR}/qpp )
 

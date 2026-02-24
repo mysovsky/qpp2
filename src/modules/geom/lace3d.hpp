@@ -6,7 +6,7 @@
 #undef slots
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
-#include <pybind11_eigen_wrp/pybind11_eigen_wrp.h>
+#include <pybind11/eigen.h>
 //#include <pybind11/stl.h>
 #include <pybind11/iostream.h>
 namespace py = pybind11;
@@ -70,8 +70,7 @@ struct check_is_matrix3<3, 3> {
 };
 
 template <typename VALTYPE, int N, int M>
-class generic_matrix : public Eigen::Matrix<VALTYPE, N, M >,
-                       public pybind11::detail::do_not_expose_me_as_ndarray {
+class generic_matrix : public Eigen::Matrix<VALTYPE, N, M >{
 public:
 
   static typename numeric_type<VALTYPE>::norm tol_equiv;

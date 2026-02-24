@@ -1,6 +1,5 @@
 include(ExternalProject)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/deps/pybind11)
 add_subdirectory(${PROJECT_SOURCE_DIR}/deps/fmtlib EXCLUDE_FROM_ALL)
 add_subdirectory(${PROJECT_SOURCE_DIR}/deps/pugixml)
 

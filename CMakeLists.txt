@@ -59,14 +59,15 @@ set(EX_SF  "")
 
 function(def_example arg_name arg_src)
     add_executable(${EX_PR}${arg_name}${EX_SF} ${arg_src})
-    target_link_libraries(${EX_PR}${arg_name}${EX_SF} qpp )
-endfunction(def_example)
+    target_link_libraries(${EX_PR}${arg_name}${EX_SF} 
+        PRIVATE qpp pybind11::headers Python::Python)
+endfunction()
 
 function(def_example_custom_lib arg_name arg_src arg_lib)
     add_executable(${EX_PR}${arg_name}${EX_SF} ${arg_src})
-    target_link_libraries(${EX_PR}${arg_name}${EX_SF} qpp ${arg_lib})
-endfunction(def_example_custom_lib)
-
+    target_link_libraries(${EX_PR}${arg_name}${EX_SF} 
+        PRIVATE qpp ${arg_lib} pybind11::headers Python::Python)
+endfunction()
 # end example framework
 
 #eigen3
@@ -82,9 +83,15 @@ else()
     include_directories(${PROJECT_SOURCE_DIR}/deps/eigen3/Eigen)
 endif()
 #end eigen3
-include_directories( "/usr/include/python3.10/")
+
+find_package(Python REQUIRED COMPONENTS Interpreter Development)
+if(EXISTS ${PROJECT_SOURCE_DIR}/deps/pybind11/CMakeLists.txt)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/deps/pybind11)
+else()
+    find_package(pybind11 CONFIG REQUIRED)
+endif()
+
 add_subdirectory(deps)
-include_directories(${PROJECT_SOURCE_DIR}/deps/pybind11/include)
 include_directories(${PROJECT_SOURCE_DIR}/deps/eigen3)
 include_directories(${PROJECT_SOURCE_DIR}/deps/fmtlib/include)
 include_directories(${PROJECT_SOURCE_DIR}/deps/fmtlib/CppNumericalSolvers)
