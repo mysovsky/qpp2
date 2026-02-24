@@ -10,7 +10,6 @@
 #pragma once
 
 #include "pybind11.h"
-
 #include "detail/common.h"
 #include "detail/descr.h"
 #include "detail/type_caster_base.h"
