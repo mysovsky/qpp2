@@ -5,6 +5,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 #include <fmt/ostream.h>
+
 //#include <pybind11/eigen.h>
 /*
 namespace pybind11 { namespace detail {
@@ -40,8 +41,17 @@ void py_vector3_export (py::module m, const char * pyname) {
     .def(py::init<const qpp::vector3<VALTYPE>&>())
 
     .def("__str__", &qpp::vector3<VALTYPE>::to_string_vec)
+<<<<<<< HEAD
     .def("__repr__", &qpp::vector3<VALTYPE>::to_string_vec)
     .def("__add__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)->qpp::vector3<VALTYPE>
+=======
+    //.def("__repr__", [](const qpp::vector3<VALTYPE> &self)->std::string{
+    //  return "asdasdasda";
+      //return fmt::format("[ {:8.12f}, {:8.12f}, {:8.12f} ]", self.x(), self.y(),self.z());
+    //})
+
+    .def("__add__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)
+>>>>>>> fc65417 (Returning to old fmt)
     {return self+other;})
 
     .def("__sub__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)->qpp::vector3<VALTYPE>

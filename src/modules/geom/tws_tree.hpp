@@ -17,6 +17,7 @@
 #include <iostream>
 #include <ostream>
 #include <fmt/ostream.h>
+#include <fmt/std.h>
 
 #include <geom/xgeom.hpp>
 #include <geom/ngbr.hpp>
