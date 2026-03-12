@@ -1,11 +1,11 @@
 #include <pyqpp/pyqpp.hpp>
-#include <pybind11/embed.h> 
+//#include <pybind11/embed.h> 
 
-#if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)
-PYBIND11_EMBEDDED_MODULE(pyqpp, m) {
-#else
+//#if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)
+//PYBIND11_EMBEDDED_MODULE(pyqpp, m) {
+//#else
 PYBIND11_MODULE(pyqpp, m) {
-#endif
+  //#endif
 
   //std::cout << "qpp-rebuild version\n";
   try {

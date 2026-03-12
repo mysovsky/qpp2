@@ -7,7 +7,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
 #include <pybind11/eigen.h>
-//#include <pybind11/stl.h>
+#include <pybind11/stl.h>
 #include <pybind11/iostream.h>
 namespace py = pybind11;
 #pragma pop_macro("slots")
@@ -100,7 +100,8 @@ struct check_is_matrix3<3, 3> {
 template <typename VALTYPE, int N, int M>
 class generic_matrix : public Eigen::Matrix<VALTYPE, N, M >{
 public:
-
+  using Base=Eigen::Matrix<VALTYPE, N, M >;
+  //using Base::Base;
   static typename numeric_type<VALTYPE>::norm tol_equiv;
   static generic_matrix unity(){
     return generic_matrix<VALTYPE, N, M>::Identity();	
@@ -445,7 +446,7 @@ using vector3 = generic_matrix<VALTYPE, 3, 1>;
 
 template<class VALTYPE>
 using matrix3 = generic_matrix<VALTYPE, 3, 3>;
-
+  /*
 template <typename VALTYPE>
 std::ostream& operator<< (std::ostream& stream, const vector3<VALTYPE> &gm) {
   stream << gm.to_string_vec();
@@ -457,7 +458,7 @@ std::ostream& operator<< (std::ostream& stream, const matrix3<VALTYPE> &gm) {
   stream << gm.to_string_matr();
   return stream;
 }
-
+  */
 template<class VALTYPE>
 matrix3<VALTYPE> mat4_to_mat3(const matrix4<VALTYPE> inmat){
   matrix3<VALTYPE> res;

@@ -4,12 +4,34 @@
 #include <symm/transform.hpp>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+//#include <pybind11/eigen.h>
+
+namespace pybind11 { namespace detail {
+    template<>
+    struct type_caster<qpp::vector3<float>>
+        : public type_caster_base<qpp::vector3<float>> {
+        using type_caster_base<qpp::vector3<float>>::type_caster_base;
+    };
+    template<>
+    struct type_caster<qpp::vector3<double>>
+        : public type_caster_base<qpp::vector3<double>> {
+        using type_caster_base<qpp::vector3<double>>::type_caster_base;
+    };
+  }
+}
 
 template<class VALTYPE>
 void py_vector3_export (py::module m, const char * pyname) {
   //std::cout << "exporting " << pyname << "\n";
   //std::cout << " exporting vector3 " << pyname << "\n";
-  py::class_<qpp::vector3<VALTYPE> >(m, pyname )
+  /*
+  std::string hren = "fuckit";
+  hren = hren+pyname;
+  py::class_<  Eigen::Matrix<VALTYPE, 3, 1 > >(m,hren.c_str());*/
+
+  
+  py::class_<qpp::vector3<VALTYPE>>(m, pyname )
+    .def(py::init<Eigen::Index, Eigen::Index>())
     .def(py::init<>())
     .def(py::init<VALTYPE, VALTYPE, VALTYPE>())
     .def(py::init<VALTYPE>())
@@ -18,25 +40,29 @@ void py_vector3_export (py::module m, const char * pyname) {
     .def(py::init<const qpp::vector3<VALTYPE>&>())
 
     .def("__str__", &qpp::vector3<VALTYPE>::to_string_vec)
-    .def("__repr__", &qpp::vector3<VALTYPE>::to_string_vec)
+    //.def("__repr__", [](const qpp::vector3<VALTYPE> &self)->std::string{
+    //  return "asdasdasda";
+      //return fmt::format("[ {:8.12f}, {:8.12f}, {:8.12f} ]", self.x(), self.y(),self.z());
+    //})
+    .def("fuck",[](const qpp::vector3<VALTYPE> &self){std::cout << "Happy banging your head against the wall!!\n";})
 
     .def("__add__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)
-    {return self.sum_proxy(other);})
+    {return self+other;})
 
     .def("__sub__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)
-    {return self.sub_proxy(other);})
+    {return self-other;})
 
     .def("__mul__", [](qpp::vector3<VALTYPE> &self, const VALTYPE ns)
-    {return self.mul_proxy(ns);})
+    {return self*ns;})
 
     .def("__rmul__", [](qpp::vector3<VALTYPE> &self, const VALTYPE ns)
-    {return self.mul_proxy(ns);})
+    {return self*ns;})
 
     .def("__div__",[](qpp::vector3<VALTYPE> &self, const VALTYPE ns)
-    {return self.div_proxy(ns);} )
+    {return self/ns;} )
 
     .def("__truediv__",[](qpp::vector3<VALTYPE> &self, const VALTYPE ns)
-    {return self.div_proxy(ns);} )
+    {return self/ns;} )
 
     .def("__cmp__", &qpp::vector3<VALTYPE>::equal_proxy)
     .def("__rcmp__", &qpp::vector3<VALTYPE>::nequal_proxy)
@@ -46,7 +72,7 @@ void py_vector3_export (py::module m, const char * pyname) {
 
     .def("cross", &qpp::vector3<VALTYPE>::cross_product_proxy)
 
-    .def("norm",  [](const qpp::vector3<VALTYPE> &vec){ return vec.norm();})
+    .def("norm",  [](const qpp::vector3<VALTYPE> &self){ return self.norm();})
     .def("norm2",    &qpp::vector3<VALTYPE>::squaredNorm)
 
     .def("normalized",       &qpp::vector3<VALTYPE>::normalized_proxy)
@@ -221,9 +247,10 @@ void py_rotrans_export (py::module m, const char * pyname) {
 
 void pyqpp_linalg_export (py::module m) {
   
+  std::cout << "exporting vector3f\n";
   py_vector3_export<float>(m, "vector3f");
 #ifdef QPPCAD_PY_EXPORT
-  py_vector3_export<int>(m, "vector3i");
+  //py_vector3_export<int>(m, "vector3i");
 #endif
   py_matrix3_export<float>(m, "matrix3f");
   py_eigen3_export<float>(m);
@@ -231,9 +258,11 @@ void pyqpp_linalg_export (py::module m) {
   //py_rotrans_export<float,true>(m, "bound_rotrans_f");
 
 #ifdef PYTHON_EXP_EXT
+  std::cout << "exporting vector3d\n";
   py_vector3_export<double>(m, "vector3d");
   // py_vector3_export<std::complex<float> >(m, "vector3c");
   //py_vector3_export<std::complex<double> >(m, "vector3z");
+      
   py_matrix3_export<double>(m, "matrix3d");
   //py_eigen3_export<double>(m);
   py_rotrans_export<double>(m, "rotrans_d");
@@ -241,14 +270,14 @@ void pyqpp_linalg_export (py::module m) {
   //py_matrix3_export<double>(m, "matrix3d");
   py_matrix3_export<std::complex<float> >(m, "matrix3c");
   py_matrix3_export<std::complex<double> >(m, "matrix3z");
-
+		     
   py_eigen3_export<double>(m);
-  //  py_rotrans_export<double>(m, "rotrans_d");
+  //py_rotrans_export<double>(m, "rotrans_d");
   //  py_rotrans_export<double,true>(m, "bound_rotrans_d");
 #endif
   
   qpp::index::py_export( m, "index");
   qpp::iterator::py_export(m, "iterator");
   qpp::index_range::py_export(m, "index_range");
-
+ 
 }
