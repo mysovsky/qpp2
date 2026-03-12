@@ -1,8 +1,9 @@
 #include <pyqpp/pyqpp.hpp>
 #include <symm/index.hpp>
-#include <mathf/lace3d.hpp>
 #include <symm/transform.hpp>
+#include <mathf/lace3d.hpp>
 #include <fmt/format.h>
+#include <fmt/std.h>
 #include <fmt/ostream.h>
 //#include <pybind11/eigen.h>
 
@@ -19,6 +20,23 @@ namespace pybind11 { namespace detail {
     };
   }
 }
+
+//#include <pybind11/eigen.h>
+
+/*
+namespace pybind11 { namespace detail {
+    template<>
+    struct type_caster<qpp::vector3<float>>
+        : public type_caster_base<qpp::vector3<float>> {
+        using type_caster_base<qpp::vector3<float>>::type_caster_base;
+    };
+    template<>
+    struct type_caster<qpp::vector3<double>>
+        : public type_caster_base<qpp::vector3<double>> {
+        using type_caster_base<qpp::vector3<double>>::type_caster_base;
+    };
+  }
+}*/
 
 template<class VALTYPE>
 void py_vector3_export (py::module m, const char * pyname) {
@@ -44,7 +62,6 @@ void py_vector3_export (py::module m, const char * pyname) {
     //  return "asdasdasda";
       //return fmt::format("[ {:8.12f}, {:8.12f}, {:8.12f} ]", self.x(), self.y(),self.z());
     //})
-    .def("fuck",[](const qpp::vector3<VALTYPE> &self){std::cout << "Happy banging your head against the wall!!\n";})
 
     .def("__add__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)
     {return self+other;})

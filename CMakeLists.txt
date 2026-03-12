@@ -27,6 +27,8 @@ if(OPENMP_FOUND)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
+find_package(Python REQUIRED COMPONENTS Interpreter Development)
+
 # option declaration
 option(PYTHON_BINDINGS "build qpp python bindings" ON)
 option(PYTHON_EXPOSE_EXTENDED "build python wrappers not only for real=float" ON)
@@ -83,13 +85,6 @@ else()
     include_directories(${PROJECT_SOURCE_DIR}/deps/eigen3/Eigen)
 endif()
 #end eigen3
-
-find_package(Python REQUIRED COMPONENTS Interpreter Development)
-if(EXISTS ${PROJECT_SOURCE_DIR}/deps/pybind11/CMakeLists.txt)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/deps/pybind11)
-else()
-    find_package(pybind11 CONFIG REQUIRED)
-endif()
 
 add_subdirectory(deps)
 include_directories(${PROJECT_SOURCE_DIR}/deps/eigen3)

@@ -32,6 +32,7 @@ struct do_not_expose_me_as_ndarray {};
 #include <data/types.hpp>
 #include <data/errors.hpp>
 #include <consts.hpp>
+#include <fmt/std.h>
 
 namespace qpp {
 
@@ -446,6 +447,7 @@ using vector3 = generic_matrix<VALTYPE, 3, 1>;
 
 template<class VALTYPE>
 using matrix3 = generic_matrix<VALTYPE, 3, 3>;
+
   /*
 template <typename VALTYPE>
 std::ostream& operator<< (std::ostream& stream, const vector3<VALTYPE> &gm) {
@@ -459,6 +461,8 @@ std::ostream& operator<< (std::ostream& stream, const matrix3<VALTYPE> &gm) {
   return stream;
 }
   */
+  
+>>>>>>> 9fefc49 (New fmt library and pugixml)
 template<class VALTYPE>
 matrix3<VALTYPE> mat4_to_mat3(const matrix4<VALTYPE> inmat){
   matrix3<VALTYPE> res;
