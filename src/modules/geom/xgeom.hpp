@@ -347,16 +347,20 @@ namespace qpp {
 
     REAL charge(int j) const{
       int f = findex("charge");
-      if (f==-1)
+      if (f==-1){
 	KeyError("This xgeom does not have charge xfield");
+	return 0e0;
+      }
       else
 	return xfield<REAL>(f,j);
     }
     
     REAL & charge(int j){
       int f = findex("charge");
-      if (f==-1)
+      if (f==-1){
 	KeyError("This xgeom does not have charge xfield");
+	return *(REAL*)nullptr;
+      }     
       else
 	return xfield<REAL>(f,j);
     }

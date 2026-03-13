@@ -6,7 +6,7 @@
 #undef slots
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
-#include <pybind11/eigen.h>
+//#include <pybind11/eigen.h>
 #include <pybind11/stl.h>
 #include <pybind11/iostream.h>
 namespace py = pybind11;
@@ -428,7 +428,7 @@ public:
 
   // template<typename = std::enable_if<check_is_matrix3<N , M>::value> >
   inline generic_matrix<VALTYPE, 3, 1> py_getitemv(int i) const{
-    return (*this)(i);
+    return (*this).row(i);
   }
 
   //template<typename = std::enable_if<check_is_matrix3<N , M>::value> >

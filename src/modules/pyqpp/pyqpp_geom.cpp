@@ -2,7 +2,8 @@
 #undef slots
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
-//#include <pybind11/stl.h>
+#include <pybind11/stl.h>
+//#include <pybind11/eigen.h>
 #include <pybind11/iostream.h>
 #pragma pop_macro("slots")
 namespace py = pybind11;
@@ -84,8 +85,19 @@ void py_geom_export(py::module m, const char * pyname) {
 
     .def_property("tol_geom",
 		  [](const qpp::geometry<REAL>&self){return *self.tol_geom;},
-		  [](qpp::geometry<REAL>&self, REAL v){*self.tol_geom=v;})
-      ;
+		  [](qpp::geometry<REAL>&self, REAL v){*self.tol_geom=v;});
+    /*   .def("dotmtr",[](const qpp::geometry<REAL>&self){
+    int N = self.nat();
+    Eigen::MatrixXd M(N,N);
+    for (int i=0; i<N; i++)
+      for (int j=0; j<N; j++){
+	qpp::vector3<REAL> R1 = self.pos(i) -self.pos(0);
+	qpp::vector3<REAL> R2 = self.pos(j) -self.pos(0);
+	M(i,j) = R1.dot(R2);
+      }
+    return M;
+  }
+  );*/
 }
 
 

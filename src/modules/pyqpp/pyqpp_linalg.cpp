@@ -5,8 +5,9 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 //#include <pybind11/eigen.h>
+/*
+namespace pybind11 { namespace detail {  
 
-namespace pybind11 { namespace detail {
     template<>
     struct type_caster<qpp::vector3<float>>
         : public type_caster_base<qpp::vector3<float>> {
@@ -19,7 +20,7 @@ namespace pybind11 { namespace detail {
     };
   }
 }
-
+*/
 template<class VALTYPE>
 void py_vector3_export (py::module m, const char * pyname) {
   //std::cout << "exporting " << pyname << "\n";
@@ -28,9 +29,8 @@ void py_vector3_export (py::module m, const char * pyname) {
   std::string hren = "fuckit";
   hren = hren+pyname;
   py::class_<  Eigen::Matrix<VALTYPE, 3, 1 > >(m,hren.c_str());*/
-
   
-  py::class_<qpp::vector3<VALTYPE>>(m, pyname )
+  py::class_<qpp::vector3<VALTYPE>, std::shared_ptr<qpp::vector3<VALTYPE>>>(m, pyname )
     .def(py::init<Eigen::Index, Eigen::Index>())
     .def(py::init<>())
     .def(py::init<VALTYPE, VALTYPE, VALTYPE>())
@@ -40,37 +40,38 @@ void py_vector3_export (py::module m, const char * pyname) {
     .def(py::init<const qpp::vector3<VALTYPE>&>())
 
     .def("__str__", &qpp::vector3<VALTYPE>::to_string_vec)
-    //.def("__repr__", [](const qpp::vector3<VALTYPE> &self)->std::string{
-    //  return "asdasdasda";
-      //return fmt::format("[ {:8.12f}, {:8.12f}, {:8.12f} ]", self.x(), self.y(),self.z());
-    //})
-    .def("fuck",[](const qpp::vector3<VALTYPE> &self){std::cout << "Happy banging your head against the wall!!\n";})
+    .def("__repr__", [](const qpp::vector3<VALTYPE> &self)->std::string{
+      //  return "asdasdasda";
+      return fmt::format("[ {:8.12f}, {:8.12f}, {:8.12f} ]", self.x(), self.y(),self.z());
+    })
+    //.def("fuck",[](Eigen::Matrix<VALTYPE,3,1> &self){std::cout << "Happy banging your head against the wall!!\n";})
 
-    .def("__add__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)
+    .def("__add__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)->qpp::vector3<VALTYPE>
     {return self+other;})
 
-    .def("__sub__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)
+    .def("__sub__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)->qpp::vector3<VALTYPE>
     {return self-other;})
 
-    .def("__mul__", [](qpp::vector3<VALTYPE> &self, const VALTYPE ns)
+    .def("__mul__", [](qpp::vector3<VALTYPE> &self, const VALTYPE ns)->qpp::vector3<VALTYPE>
     {return self*ns;})
 
-    .def("__rmul__", [](qpp::vector3<VALTYPE> &self, const VALTYPE ns)
+    .def("__rmul__", [](qpp::vector3<VALTYPE> &self, const VALTYPE ns)->qpp::vector3<VALTYPE>
     {return self*ns;})
 
-    .def("__div__",[](qpp::vector3<VALTYPE> &self, const VALTYPE ns)
+    .def("__div__",[](qpp::vector3<VALTYPE> &self, const VALTYPE ns)->qpp::vector3<VALTYPE>
     {return self/ns;} )
 
-    .def("__truediv__",[](qpp::vector3<VALTYPE> &self, const VALTYPE ns)
+    .def("__truediv__",[](qpp::vector3<VALTYPE> &self, const VALTYPE ns)->qpp::vector3<VALTYPE>
     {return self/ns;} )
 
-    .def("__cmp__", &qpp::vector3<VALTYPE>::equal_proxy)
-    .def("__rcmp__", &qpp::vector3<VALTYPE>::nequal_proxy)
+    .def("__cmp__", [](qpp::vector3<VALTYPE> &a, qpp::vector3<VALTYPE> &b){return a==b;})
+    .def("__rcmp__", [](qpp::vector3<VALTYPE> &a, qpp::vector3<VALTYPE> &b){return a!=b;})
     .def("__getitem__", &qpp::vector3<VALTYPE>::py_getitem_v)
     .def("__setitem__", &qpp::vector3<VALTYPE>::py_setitem_v)
-    .def("dot", &qpp::vector3<VALTYPE>::dot_product_proxy)
+    .def("dot", [](qpp::vector3<VALTYPE> &a, qpp::vector3<VALTYPE> &b){return a.dot(b);})
 
-    .def("cross", &qpp::vector3<VALTYPE>::cross_product_proxy)
+    .def("cross", [](qpp::vector3<VALTYPE> &a, qpp::vector3<VALTYPE> &b)->qpp::vector3<VALTYPE>{
+	return a.cross(b);})
 
     .def("norm",  [](const qpp::vector3<VALTYPE> &self){ return self.norm();})
     .def("norm2",    &qpp::vector3<VALTYPE>::squaredNorm)

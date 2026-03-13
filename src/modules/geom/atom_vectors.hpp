@@ -26,7 +26,7 @@ namespace qpp{
     
     geometry<REAL> * bound_geom;
     std::vector<vector3<REAL> > vectors;
-    std::vector<vector3<REAL>> colors;
+    std::vector<vector3<REAL> > colors;
 
     geom_atom_vectors(geometry<REAL> *__bound_geom=nullptr){
       bound_geom = __bound_geom;
