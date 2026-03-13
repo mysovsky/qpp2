@@ -11,6 +11,8 @@ namespace py = pybind11;
 #include <mathf/lace3d.hpp>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <fmt/std.h>
+#include <mathf/fmt_matrix.hpp>
 #include <data/generic_array.hpp>
 
 using namespace qpp;
