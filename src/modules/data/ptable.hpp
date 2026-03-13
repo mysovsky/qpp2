@@ -32,8 +32,7 @@ namespace qpp {
       vector3<float> m_color_jmol;
       vector3<float> m_color_gv;
       vector3<float> m_color_cpk;
-
-	  float m_color_alpha;
+    float m_color_alpha{1.0};
 
       std::vector<std::tuple<int,std::string,int> > m_elec_conf;
 
@@ -173,6 +172,13 @@ namespace qpp {
         else return 1.0f;
 
       }
+    
+    static vector3<float> color_by_number(const size_t number){
+      ptable *table = ptable::get_inst();
+      if (number >= 1 && number < PTABLE_ELEM_N)
+	return table->arecs[number-1].m_color_jmol;
+      else return {.0,.0,.0};
+    }
 
   };
 

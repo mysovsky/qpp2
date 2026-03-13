@@ -462,7 +462,6 @@ std::ostream& operator<< (std::ostream& stream, const matrix3<VALTYPE> &gm) {
 }
   */
   
->>>>>>> 9fefc49 (New fmt library and pugixml)
 template<class VALTYPE>
 matrix3<VALTYPE> mat4_to_mat3(const matrix4<VALTYPE> inmat){
   matrix3<VALTYPE> res;

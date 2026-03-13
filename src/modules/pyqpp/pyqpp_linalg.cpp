@@ -21,7 +21,6 @@ namespace pybind11 { namespace detail {
   }
 }*/
 
->>>>>>> refs/remotes/origin/master
 template<class VALTYPE>
 void py_vector3_export (py::module m, const char * pyname) {
   //std::cout << "exporting " << pyname << "\n";
@@ -244,10 +243,10 @@ void py_rotrans_export (py::module m, const char * pyname) {
 
 void pyqpp_linalg_export (py::module m) {
   
-  std::cout << "exporting vector3f\n";
+  //std::cout << "exporting vector3f\n";
   py_vector3_export<float>(m, "vector3f");
 #ifdef QPPCAD_PY_EXPORT
-  //py_vector3_export<int>(m, "vector3i");
+  py_vector3_export<int>(m, "vector3i");
 #endif
   py_matrix3_export<float>(m, "matrix3f");
   py_eigen3_export<float>(m);
@@ -255,22 +254,19 @@ void pyqpp_linalg_export (py::module m) {
   //py_rotrans_export<float,true>(m, "bound_rotrans_f");
 
 #ifdef PYTHON_EXP_EXT
-  std::cout << "exporting vector3d\n";
+  //std::cout << "exporting vector3d\n";
   py_vector3_export<double>(m, "vector3d");
   // py_vector3_export<std::complex<float> >(m, "vector3c");
   //py_vector3_export<std::complex<double> >(m, "vector3z");
       
   py_matrix3_export<double>(m, "matrix3d");
-  //py_eigen3_export<double>(m);
+  py_eigen3_export<double>(m);
   py_rotrans_export<double>(m, "rotrans_d");
 
   //py_matrix3_export<double>(m, "matrix3d");
   py_matrix3_export<std::complex<float> >(m, "matrix3c");
   py_matrix3_export<std::complex<double> >(m, "matrix3z");
 		     
-  py_eigen3_export<double>(m);
-  //py_rotrans_export<double>(m, "rotrans_d");
-  //  py_rotrans_export<double,true>(m, "bound_rotrans_d");
 #endif
   
   qpp::index::py_export( m, "index");
