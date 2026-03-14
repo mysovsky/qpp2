@@ -26,6 +26,10 @@ struct formatter<qpp::Bool> : formatter<bool> {
     }
 };
 
+// Vector3 
+template <typename T>
+struct formatter<qpp::vector3<T>> : ostream_formatter {};
+
 // Basic Types
 template <>
 struct formatter<qpp::basic_types> : formatter<int> {
