@@ -1,4 +1,5 @@
 #include <pyqpp/pyqpp.hpp>
+#include <iostream>
 #include <symm/index.hpp>
 #include <symm/transform.hpp>
 #include <mathf/lace3d.hpp>
@@ -24,14 +25,7 @@ namespace pybind11 { namespace detail {
 
 template<class VALTYPE>
 void py_vector3_export (py::module m, const char * pyname) {
-  //std::cout << "exporting " << pyname << "\n";
-  //std::cout << " exporting vector3 " << pyname << "\n";
-  /*
-  std::string hren = "fuckit";
-  hren = hren+pyname;
-  py::class_<  Eigen::Matrix<VALTYPE, 3, 1 > >(m,hren.c_str());*/
-  
-  py::class_<qpp::vector3<VALTYPE>, std::shared_ptr<qpp::vector3<VALTYPE>>>(m, pyname )
+  py::class_<qpp::vector3<VALTYPE>, std::shared_ptr<qpp::vector3<VALTYPE>>>(m, pyname)
     .def(py::init<Eigen::Index, Eigen::Index>())
     .def(py::init<>())
     .def(py::init<VALTYPE, VALTYPE, VALTYPE>())
@@ -41,27 +35,25 @@ void py_vector3_export (py::module m, const char * pyname) {
     .def(py::init<const qpp::vector3<VALTYPE>&>())
 
     .def("__str__", &qpp::vector3<VALTYPE>::to_string_vec)
-    //.def("__repr__", [](const qpp::vector3<VALTYPE> &self)->std::string{
-    //  return "asdasdasda";
-      //return fmt::format("[ {:8.12f}, {:8.12f}, {:8.12f} ]", self.x(), self.y(),self.z());
-    //})
 
-    .def("__add__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)
-    {return self+other;})
+	.def("__repr__", &qpp::vector3<VALTYPE>::to_string_vec)
 
+	.def("__add__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)->qpp::vector3<VALTYPE> 
+	{return self+other;})
+	    
     .def("__sub__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)->qpp::vector3<VALTYPE>
     {return self-other;})
 
-    .def("__mul__", [](qpp::vector3<VALTYPE> &self, const VALTYPE ns)->qpp::vector3<VALTYPE>
+    .def("__mul__", [](qpp::vector3<VALTYPE> &self, VALTYPE ns)->qpp::vector3<VALTYPE>
     {return self*ns;})
 
-    .def("__rmul__", [](qpp::vector3<VALTYPE> &self, const VALTYPE ns)->qpp::vector3<VALTYPE>
+    .def("__rmul__", [](qpp::vector3<VALTYPE> &self, VALTYPE ns)->qpp::vector3<VALTYPE>
     {return self*ns;})
 
-    .def("__div__",[](qpp::vector3<VALTYPE> &self, const VALTYPE ns)->qpp::vector3<VALTYPE>
+    .def("__div__",[](qpp::vector3<VALTYPE> &self, VALTYPE ns)->qpp::vector3<VALTYPE>
     {return self/ns;} )
 
-    .def("__truediv__",[](qpp::vector3<VALTYPE> &self, const VALTYPE ns)->qpp::vector3<VALTYPE>
+    .def("__truediv__",[](qpp::vector3<VALTYPE> &self, VALTYPE ns)->qpp::vector3<VALTYPE>
     {return self/ns;} )
 
     .def("__cmp__", [](qpp::vector3<VALTYPE> &a, qpp::vector3<VALTYPE> &b){return a==b;})
@@ -83,7 +75,6 @@ void py_vector3_export (py::module m, const char * pyname) {
     .def_property("y",  &qpp::vector3<VALTYPE>::py_gety, &qpp::vector3<VALTYPE>::py_sety)
     .def_property("z",  &qpp::vector3<VALTYPE>::py_getz, &qpp::vector3<VALTYPE>::py_setz)
     .def_readwrite_static("tol_equiv", &qpp::vector3<VALTYPE>::tol_equiv) ;
-
 }
 
 template<class VALTYPE>

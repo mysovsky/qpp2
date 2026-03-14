@@ -448,7 +448,6 @@ using vector3 = generic_matrix<VALTYPE, 3, 1>;
 template<class VALTYPE>
 using matrix3 = generic_matrix<VALTYPE, 3, 3>;
 
-  /*
 template <typename VALTYPE>
 std::ostream& operator<< (std::ostream& stream, const vector3<VALTYPE> &gm) {
   stream << gm.to_string_vec();
@@ -460,7 +459,6 @@ std::ostream& operator<< (std::ostream& stream, const matrix3<VALTYPE> &gm) {
   stream << gm.to_string_matr();
   return stream;
 }
-  */
   
 template<class VALTYPE>
 matrix3<VALTYPE> mat4_to_mat3(const matrix4<VALTYPE> inmat){
