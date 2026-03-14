@@ -1,8 +1,8 @@
-#ifndef FMT_GENERIC_MATRIX_HPP
-#define FMT_GENERIC_MATRIX_HPP
+#ifndef FMT_QPP_TYPES_HPP
+#define FMT_QPP_TYPES_HPP
 
 #include <fmt/format.h>
-#include "mathf/lace3d.hpp"
+#include <mathf/lace3d.hpp>
 
 namespace fmt {
 
