@@ -3,37 +3,28 @@
 
 #include <symm/index.hpp>
 #include <data/data.hpp>
-#include <mathf/lace3d.hpp>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <mathf/lace3d.hpp>
 
 namespace fmt {
 
-// Generic Matrix
+//Header for formating custom class in fmt (for new version of fmt)
+//Generic Matrix
 template <typename Scalar, int N, int M>
 struct formatter<qpp::generic_matrix<Scalar, N, M>> : ostream_formatter {};
 
-// Index
+//Index
 template <>
 struct formatter<qpp::index> : ostream_formatter {};
 
-// Bool
+//Bool
 template <>
 struct formatter<qpp::Bool> : formatter<bool> {
     auto format(const qpp::Bool& b, format_context& ctx) const {
         return formatter<bool>::format(static_cast<bool>(b), ctx);
     }
-};
 
-// Basic Types
-template <>
-struct formatter<qpp::basic_types> : formatter<int> {
-    auto format(qpp::basic_types bt, format_context& ctx) const {
-        return formatter<int>::format(static_cast<int>(bt), ctx);
-    }
-};
-
-} // namespace fmt
-
+}; 
 #endif

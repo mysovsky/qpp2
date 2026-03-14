@@ -20,6 +20,7 @@ namespace py = pybind11;
 #include <geom/geom.hpp>
 //#include <io/geomio.hpp>
 #include <cmath>
+#include <data/data.hpp>
 
 namespace qpp{
 
