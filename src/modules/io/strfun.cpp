@@ -93,13 +93,13 @@ namespace qpp{
 
   // -----------------------------------------------------------
 
-  int strnf(const STRING_EX & s){
+  /*int strnf(const STRING_EX & s){
     std::basic_stringstream<CHAR_EX,TRAITS> ss(s);
     STRING_EX a;
     int nf = 0;
     for (nf=0; ss >> a; a!="") nf++; // TODO: inequality comparison result unused
     return nf;
-  }
+  }*/
 
   // ----------------------------------------------------------
 

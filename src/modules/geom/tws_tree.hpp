@@ -18,6 +18,7 @@
 #include <ostream>
 #include <fmt/ostream.h>
 #include <fmt/std.h>
+#include <data/fmt_qpp_types.hpp>
 
 #include <geom/xgeom.hpp>
 #include <geom/ngbr.hpp>
