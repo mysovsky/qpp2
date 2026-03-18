@@ -1,5 +1,6 @@
 add_subdirectory(symm)
 add_subdirectory(geom)
+add_subdirectory(mathf)
 #add_subdirectory(basis)
 #add_subdirectory(io)
 #add_subdirectory(compute)

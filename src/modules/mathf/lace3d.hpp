@@ -12,6 +12,8 @@
 namespace py = pybind11;
 #pragma pop_macro("slots")
 #else
+#include <type_traits>
+
 namespace pybind11 {
 namespace detail {
 struct do_not_expose_me_as_ndarray {};
@@ -38,12 +40,12 @@ namespace qpp {
 
 //const double tol_equiv = 1e-8;
 
-template <typename ELEM> using vector2 = Eigen::Matrix<ELEM, 2, 1>;
+template <typename ELEM> using _vector2 = Eigen::Matrix<ELEM, 2, 1>;
 template <typename ELEM> using _vector3 = Eigen::Matrix<ELEM, 3, 1>;
 template <typename ELEM> using vector4 = Eigen::Matrix<ELEM, 4, 1>;
 template <typename ELEM, int n> using vectorn = Eigen::Matrix<ELEM, n, 1>;
 
-template <typename ELEM> using matrix2 = Eigen::Matrix<ELEM, 2, 2>;
+template <typename ELEM> using _matrix2 = Eigen::Matrix<ELEM, 2, 2>;
 // template <typename ELEM> using matrix3 = Eigen::Matrix<ELEM, 3, 3>;
 template <typename ELEM> using matrix4 = Eigen::Matrix<ELEM, 4, 4>;
 template <typename ELEM, int n> using matrixnn = Eigen::Matrix<ELEM, n, n>;
@@ -97,7 +99,37 @@ template<>
 struct check_is_matrix3<3, 3> {
   static const bool value = true;
 };
+  
+template<int FIXED_N, int FIXED_M>
+struct check_is_matrix2 {
+  static const bool value = false;
+};
 
+template<>
+struct check_is_matrix2<2, 2> {
+  static const bool value = true;
+};
+  
+template<int FIXED_N, int FIXED_M>
+struct check_is_vector2 {
+  static const bool value = false;
+};
+  
+template<>
+struct check_is_vector2<2, 1> {
+  static const bool value = true;
+};
+  
+template<int FIXED_N, int FIXED_M>
+struct check_is_matrixN {
+  static const bool value = false;
+};
+  
+template<int N>
+struct check_is_matrixN<N, N> {
+  static const bool value = true;
+};
+  
 template <typename VALTYPE, int N, int M>
 class generic_matrix : public Eigen::Matrix<VALTYPE, N, M >{
 public:
@@ -121,7 +153,7 @@ public:
   }
 
   generic_matrix(void):Eigen::Matrix<VALTYPE, N, M >() {}
-  generic_matrix(int, int) : Eigen::Matrix<VALTYPE, N, M>() {}
+  //generic_matrix(int, int) : Eigen::Matrix<VALTYPE, N, M>() {}
 
   template<typename = std::enable_if<check_is_vector3<N , M>::value> >
   generic_matrix(VALTYPE x, VALTYPE y, VALTYPE z): Eigen::Matrix<VALTYPE, N, M>() {
@@ -129,7 +161,13 @@ public:
     (*this)(1) = y;
     (*this)(2) = z;
   }
-
+  
+  template<typename = std::enable_if<check_is_vector2<N , M>::value> >
+  generic_matrix(VALTYPE x, VALTYPE y): Eigen::Matrix<VALTYPE, N, M>() {
+    (*this)(0) = x;
+    (*this)(1) = y;
+  }
+  
   template<typename = std::enable_if<check_is_matrix3<N , M>::value> >
   generic_matrix(const generic_matrix<VALTYPE, 3, 1> &v1,
                  const generic_matrix<VALTYPE, 3, 1> &v2,
@@ -138,8 +176,18 @@ public:
     (*this).row(1) = v2;
     (*this).row(2) = v3;
   }
+  
+  template<typename T= std::enable_if<check_is_matrix2<N, M>::value> >
+  generic_matrix( VALTYPE v00,  VALTYPE v01, 
+		  VALTYPE v10,  VALTYPE v11):
+    Eigen::Matrix<VALTYPE, N, M>(){
+    (*this).row(0)(0) = v00;
+    (*this).row(0)(1) = v01;
+    (*this).row(1)(0) = v10;
+    (*this).row(1)(1) = v11;
+  }
 
-  template<typename = std::enable_if<check_is_matrix3<N , M>::value> >
+  template<typename = std::enable_if<check_is_matrix3<N, M>::value> >
   generic_matrix(const VALTYPE v00, const VALTYPE v01, const VALTYPE v02,
                  const VALTYPE v10, const VALTYPE v11, const VALTYPE v12,
                  const VALTYPE v20, const VALTYPE v21, const VALTYPE v22):
@@ -156,17 +204,37 @@ public:
     (*this).row(2)(0) = v20;
     (*this).row(2)(1) = v21;
     (*this).row(2)(2) = v22;
-
   }
 
   generic_matrix(VALTYPE xyz):Eigen::Matrix<VALTYPE, N, M >() {
     (*this) = generic_matrix<VALTYPE, N, M>::Constant(N, M, xyz);
   }
-
+  
   template<typename OtherDerived>
   generic_matrix(const Eigen::MatrixBase<OtherDerived>& other)
-      :Eigen::Matrix<VALTYPE, N, M>(other) { }
+    :Eigen::Matrix<VALTYPE, N, M>(other) { }
 
+  typename numeric_type<VALTYPE>::real norm() const{
+    return Eigen::Matrix<VALTYPE, N, M >::norm();
+  }
+  
+  typename numeric_type<VALTYPE>::real norm2() const{
+    VALTYPE n=norm();
+    return n*n;
+  }
+  
+  static generic_matrix<VALTYPE, N, M > create(const std::vector<VALTYPE> & vals){
+    generic_matrix<VALTYPE, N, M > A;
+    int k=0;
+    for(int i=0; i<N; i++)
+      for(int j=0; j<M; j++)
+	{
+	  A(i,j) = vals[k];
+	  k++;	  
+	}
+    return A;
+  }
+  
   template<typename OtherDerived>
   generic_matrix& operator=(const Eigen::MatrixBase <OtherDerived>& other) {
     this->Eigen::Matrix<VALTYPE, N, M>::operator=(other);
@@ -181,33 +249,32 @@ public:
     return ! ((*this)==b);
   }
   std::string to_string_vec() const {
-    VALTYPE x = (*this)[0];
-    VALTYPE y = (*this)[1];
-    VALTYPE z = (*this)[2];
-    
-    return "[ "+t2s(x)+", "+t2s(y)+", "+t2s(z)+" ]";
+    std::ostringstream oss;
+    oss<< "[";
+    for (int i =0; i<N-1; i++)
+      oss << (*this)[i] << ",";
+    oss <<  (*this)[N-1] << "]";
+    return oss.str();
   }
 
-    //return fmt::format("[ {:8.6f}, {:8.6f}, {:8.6f} ]", (*this)[0], (*this)[1], (*this)[2]);
-      //    return "[ "+fnumber(x)+","+ fnumber(y)+","+ fnumber(z)+"]";
-
-
-  //template<typename = std::enable_if<check_is_vector3<N , M>::value> >
-  /*
-  STRING_EX to_string_vec() const {
-
-    //if constexpr(std::is_same<VALTYPE,double>::value) {
-      return "[ "+fnumber((*this)[0])+","+ fnumber((*this)[1])+","+ fnumber((*this)[2])+"]";
-    }
-
-  //return "[ "+fnumber((*this)[0])+","+ fnumber((*this)[1])+","+ fnumber((*this)[2])+"]";
-
-  }
-  */
-  //template<typename = std::enable_if<check_is_matrix3<N , M>::value> >
 
   std::string to_string_matr() const {
-
+    std::ostringstream oss;
+    oss << "[";
+    for (int i = 0; i < N; ++i) {
+      if (i != 0) oss << "\n ";
+      oss << "[";
+      for (int j = 0; j < M; ++j) {
+	if (j != 0) oss << ", ";
+	oss << (*this)(i, j);
+      }
+      oss << "]";
+    }
+    oss << "]";
+    return oss.str();
+  }
+  /*
+  std::string to_string_matr() const {
     if constexpr(std::is_same<VALTYPE,double>::value) {
       return fmt::format("[ {:8.12f}, {:8.12f}, {:8.12f}\n"
                          "   {:8.12f}, {:8.12f}, {:8.12f}\n"
@@ -237,8 +304,17 @@ public:
                        (*this).row(2)(2));
 
   }
+  
+ std::string to_string_matr2() const {
+   return fmt::format("[ {:8.6f}, {:8.6f}\n"
+		      "  {:8.6f}, {:8.6f} ]\n"
+		      (*this).row(0)(0),
+		      (*this).row(0)(1),
+		      (*this).row(1)(0),
+		      (*this).row(1)(1));
+ }
 
-
+  */
 #if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)
   static generic_matrix<VALTYPE, N, M> identity_proxy(){
     return generic_matrix<VALTYPE, N, M>::Identity();
@@ -276,7 +352,7 @@ public:
       (const generic_matrix& other){
     return (*this).cross(other);
   }
-
+ 
   generic_matrix<VALTYPE, N, M> inverse_proxy(){
     return (*this).inverse();
   }
@@ -314,13 +390,11 @@ public:
   }
 
   generic_matrix(const py::list &l){
-    //TOODO check
     for (int i=0; i<3; i++)
       (*this)[i] = py::cast<VALTYPE>(l[i]);
   }
 
   generic_matrix(const py::tuple &l){
-    //TOODO check
     for (int i=0; i<3; i++)
       (*this)[i] = py::cast<VALTYPE>(l[i]);
   }
@@ -343,9 +417,45 @@ public:
         (*this)[i] = v;
   }
 
+  // Вместо двух перегрузок x() для vector2 и vector3 пишем одну:
+  VALTYPE x() const {
+    static_assert(M == 1, "x() is only for vectors (column vectors)");
+    static_assert(N == 2 || N == 3, "x() is only for 2D or 3D vectors");
+    return (*this)[0];
+  }
+  
+  VALTYPE& x() {
+    static_assert(M == 1, "x() is only for vectors");
+    static_assert(N == 2 || N == 3, "x() is only for 2D or 3D vectors");
+    return (*this)[0];
+  }
+  
+  // Аналогично для y() и z():
+  VALTYPE y() const {
+    static_assert(M == 1, "y() is only for vectors");
+    static_assert(N == 2 || N == 3, "y() is only for 2D or 3D vectors");
+    return (*this)[1];
+  }
+  
+  VALTYPE& y() {
+    static_assert(M == 1, "y() is only for vectors");
+    static_assert(N == 2 || N == 3, "y() is only for 2D or 3D vectors");
+    return (*this)[1];
+  }
+  
+  VALTYPE z() const {
+    static_assert(M == 1 && N == 3, "z() is only for 3D vectors");
+    return (*this)[2];
+  }
+  
+  VALTYPE& z() {
+    static_assert(M == 1 && N == 3, "z() is only for 3D vectors");
+    return (*this)[2];
+  }
+  
   //template<typename = std::enable_if<check_is_vector3<N , M>::value> >
   inline VALTYPE py_getx(){return (*this)[0];}
-
+  
   //template<typename = std::enable_if<check_is_vector3<N , M>::value> >
   inline VALTYPE py_gety(){return (*this)[1];}
 
@@ -436,31 +546,39 @@ public:
   inline void py_setitemv(int i, const generic_matrix<VALTYPE, 3, 1> & v){
     (*this).row(i) = v;
   }
-
-
 #endif
 
 };
 
 template<class VALTYPE>
 using vector3 = generic_matrix<VALTYPE, 3, 1>;
+  
+template<class VALTYPE>
+using vector2 = generic_matrix<VALTYPE, 2, 1>;
 
 template<class VALTYPE>
 using matrix3 = generic_matrix<VALTYPE, 3, 3>;
 
-  /*
+template<class VALTYPE>
+using matrix2 = generic_matrix<VALTYPE, 2, 2>;
+ 
 template <typename VALTYPE>
-std::ostream& operator<< (std::ostream& stream, const vector3<VALTYPE> &gm) {
+OSTREAM& operator<< (OSTREAM& stream, const vector3<VALTYPE> &gm) {
   stream << gm.to_string_vec();
   return stream;
 }
 
 template <typename VALTYPE>
-std::ostream& operator<< (std::ostream& stream, const matrix3<VALTYPE> &gm) {
+OSTREAM& operator<< (OSTREAM& stream, const matrix3<VALTYPE> &gm) {
   stream << gm.to_string_matr();
   return stream;
 }
-  */
+
+template <typename VALTYPE, int N, int M>
+OSTREAM& operator<< (OSTREAM& stream, const generic_matrix<VALTYPE,N,M> &gm) {
+  stream << gm.to_string_matr();    
+  return stream;
+}
   
 template<class VALTYPE>
 matrix3<VALTYPE> mat4_to_mat3(const matrix4<VALTYPE> inmat){
@@ -471,6 +589,11 @@ matrix3<VALTYPE> mat4_to_mat3(const matrix4<VALTYPE> inmat){
   return res;
 }
 
+  template<class VALTYPE>
+  vector3<VALTYPE> operator%(const  vector3<VALTYPE> &a, const  vector3<VALTYPE> &b) {
+    return a.cross(b);
+  }
+  
 template<class VALTYPE>
 vector3<VALTYPE> gen_vec3(VALTYPE x, VALTYPE y, VALTYPE z){
   vector3<VALTYPE> retvec;

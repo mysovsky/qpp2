@@ -48,7 +48,7 @@ if(PYTHON_BINDINGS)
 	pyqpp/pyqpp_io.cpp
         #pyqpp/pyqpp_gmsio.cpp
         #pyqpp/pyqpp_ccd.cpp
-        #pyqpp/pyqpp_experimental.cpp
+        mathf/specfunc.cpp
         data/errors.cpp
         data/data.cpp
         data/types.cpp

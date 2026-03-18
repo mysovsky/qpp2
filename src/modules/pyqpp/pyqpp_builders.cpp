@@ -1,5 +1,6 @@
 #include <pyqpp/pyqpp.hpp>
-#include <geom/builders.hpp>
+#include <grow/builders.hpp>
+#include <grow/manyfold.hpp>
 #include <geom/ngbr.hpp>
 #include <symm/gen_cell.hpp>
 //#include <pybind11/stl.h>
@@ -107,6 +108,14 @@ void def_unique3(py::module m, const std::string & kname){
   def_unique2<REAL, qpp::gen_cell<REAL, qpp::rotrans<REAL> > >(m, kname+"c");
 }
 
+template<class REAL>
+void def_paramsufr(py::module m){
+  qpp::parametric_surface<float>:: py_export(m, "parametric_surface_f");
+  qpp::orthoparametric_surface<float>:: py_export(m, "orthoparametric_surface_f");
+  qpp::parametric_sphere<float>:: py_export(m, "parametric_sphere_f");
+  qpp::parametric_torus<float>:: py_export(m, "parametric_torus_f");
+}
+
 void pyqpp_builders_export (py::module m) {
 
   m.def("treat_crowd", qpp::treat_crowd<float>);
@@ -133,6 +142,15 @@ void pyqpp_builders_export (py::module m) {
   */
   def_builders4<double>(m);
   def_unique2<double>(m, "d");
+  qpp::parametric_surface<float>:: py_export(m, "parametric_surface_f");
+  qpp::orthoparametric_surface<float>:: py_export(m, "orthoparametric_surface_f");
+  qpp::parametric_sphere<float>:: py_export(m, "parametric_sphere_f");
+  qpp::parametric_torus<float>:: py_export(m, "parametric_torus_f");
+
+  qpp::parametric_surface<double>:: py_export(m, "parametric_surface_d");
+  qpp::orthoparametric_surface<double>:: py_export(m, "orthoparametric_surface_d");
+  qpp::parametric_sphere<double>:: py_export(m, "parametric_sphere_d");
+  qpp::parametric_torus<double>:: py_export(m, "parametric_torus_d");
 #endif
 
 }

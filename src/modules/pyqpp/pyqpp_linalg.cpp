@@ -41,10 +41,7 @@ void py_vector3_export (py::module m, const char * pyname) {
     .def(py::init<const qpp::vector3<VALTYPE>&>())
 
     .def("__str__", &qpp::vector3<VALTYPE>::to_string_vec)
-    //.def("__repr__", [](const qpp::vector3<VALTYPE> &self)->std::string{
-    //  return "asdasdasda";
-      //return fmt::format("[ {:8.12f}, {:8.12f}, {:8.12f} ]", self.x(), self.y(),self.z());
-    //})
+    .def("__repr__", &qpp::vector3<VALTYPE>::to_string_vec)    
 
     .def("__add__", [](qpp::vector3<VALTYPE> &self, qpp::vector3<VALTYPE> &other)
     {return self+other;})
@@ -83,6 +80,59 @@ void py_vector3_export (py::module m, const char * pyname) {
     .def_property("y",  &qpp::vector3<VALTYPE>::py_gety, &qpp::vector3<VALTYPE>::py_sety)
     .def_property("z",  &qpp::vector3<VALTYPE>::py_getz, &qpp::vector3<VALTYPE>::py_setz)
     .def_readwrite_static("tol_equiv", &qpp::vector3<VALTYPE>::tol_equiv) ;
+
+}
+template<class VALTYPE>
+void py_vector2_export (py::module m, const char * pyname) {
+  py::class_<qpp::vector2<VALTYPE>, std::shared_ptr<qpp::vector2<VALTYPE> > >(m, pyname )
+    .def(py::init<Eigen::Index, Eigen::Index>())
+    .def(py::init<>())
+    .def(py::init<VALTYPE, VALTYPE>())
+    .def(py::init<VALTYPE>())
+    .def(py::init<const py::list&>())
+    .def(py::init<const py::tuple&>())
+    .def(py::init<const qpp::vector2<VALTYPE>&>())
+
+    .def("__str__", &qpp::vector2<VALTYPE>::to_string_vec)    
+    .def("__repr__", &qpp::vector2<VALTYPE>::to_string_vec)    
+
+    .def("__add__", [](qpp::vector2<VALTYPE> &self, qpp::vector2<VALTYPE> &other)
+    {return self+other;})
+
+    .def("__sub__", [](qpp::vector2<VALTYPE> &self, qpp::vector2<VALTYPE> &other)->qpp::vector2<VALTYPE>
+    {return self-other;})
+
+    .def("__mul__", [](qpp::vector2<VALTYPE> &self, const VALTYPE ns)->qpp::vector2<VALTYPE>
+    {return self*ns;})
+
+    .def("__rmul__", [](qpp::vector2<VALTYPE> &self, const VALTYPE ns)->qpp::vector2<VALTYPE>
+    {return self*ns;})
+
+    .def("__div__",[](qpp::vector2<VALTYPE> &self, const VALTYPE ns)->qpp::vector2<VALTYPE>
+    {return self/ns;} )
+
+    .def("__truediv__",[](qpp::vector2<VALTYPE> &self, const VALTYPE ns)->qpp::vector2<VALTYPE>
+    {return self/ns;} )
+
+    .def("__cmp__", [](qpp::vector2<VALTYPE> &a, qpp::vector2<VALTYPE> &b){return a==b;})
+    .def("__rcmp__", [](qpp::vector2<VALTYPE> &a, qpp::vector2<VALTYPE> &b){return a!=b;})
+    .def("__getitem__", &qpp::vector2<VALTYPE>::py_getitem_v)
+    .def("__setitem__", &qpp::vector2<VALTYPE>::py_setitem_v)
+    .def("dot", [](qpp::vector2<VALTYPE> &a, qpp::vector2<VALTYPE> &b){return a.dot(b);})
+
+    //.def("cross", [](qpp::vector3<VALTYPE> &a, qpp::vector3<VALTYPE> &b)->qpp::vector3<VALTYPE>{
+    //return a.cross(b);})
+
+    .def("norm",  [](const qpp::vector2<VALTYPE> &self){ return self.norm();})
+    .def("norm2",    &qpp::vector2<VALTYPE>::squaredNorm)
+
+    .def("normalized",       &qpp::vector2<VALTYPE>::normalized_proxy)
+    .def_static("identity", &qpp::vector2<VALTYPE>::identity_proxy)
+
+    .def_property("x",  &qpp::vector2<VALTYPE>::py_getx, &qpp::vector2<VALTYPE>::py_setx)
+    .def_property("y",  &qpp::vector2<VALTYPE>::py_gety, &qpp::vector2<VALTYPE>::py_sety)
+    //.def_property("z",  &qpp::vector3<VALTYPE>::py_getz, &qpp::vector3<VALTYPE>::py_setz)
+    .def_readwrite_static("tol_equiv", &qpp::vector2<VALTYPE>::tol_equiv) ;
 
 }
 
@@ -249,6 +299,7 @@ void py_rotrans_export (py::module m, const char * pyname) {
 void pyqpp_linalg_export (py::module m) {
   
   //std::cout << "exporting vector3f\n";
+  py_vector2_export<float>(m, "vector2f");
   py_vector3_export<float>(m, "vector3f");
 #ifdef QPPCAD_PY_EXPORT
   py_vector3_export<int>(m, "vector3i");
@@ -260,6 +311,7 @@ void pyqpp_linalg_export (py::module m) {
 
 #ifdef PYTHON_EXP_EXT
   //std::cout << "exporting vector3d\n";
+  py_vector2_export<double>(m, "vector2d");
   py_vector3_export<double>(m, "vector3d");
   // py_vector3_export<std::complex<float> >(m, "vector3c");
   //py_vector3_export<std::complex<double> >(m, "vector3z");
