@@ -1,2 +1,2 @@
 add_subdirectory(modules)
-#add_subdirectory(python)
+add_subdirectory(python)

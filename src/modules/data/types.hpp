@@ -9,6 +9,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <vector>
+#include <map>
 
 #include <stdexcept>
 
@@ -120,7 +121,7 @@ namespace qpp {
   // --------------------------------------------------------
 
   // enum basic_types{type_int, type_real, type_double, type_float, type_bool, type_string};
-  enum basic_types{
+  enum basic_types: uint16_t{
     type_none   = 0,
     type_double = 1,
     type_float  = 2,
@@ -130,13 +131,15 @@ namespace qpp {
     type_string = 16,
     type_array  = 32,
     type_qpp_geometry = 64,
-    type_qpp_atom_vectors=128
+    type_qpp_atom_vectors=128,
+    type_qpp_vector3 = 256,
+    type_qpp_color = 512
   };
 
   class type_data{
   public:
     
-    static std::vector<STRING_EX> type_name;
+    static std::map< basic_types,STRING_EX> type_name;
     
   };
   

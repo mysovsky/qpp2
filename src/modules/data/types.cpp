@@ -76,66 +76,21 @@ namespace qpp{
   STRING_EX attributes<STRING_EX>::name      = "string";
   basic_types attributes<STRING_EX>::type = type_string;
 
-  std::vector<STRING_EX> type_data::type_name = {
-    "none",   // 0 
-    "double", // 1
-    "float",  // 2
-    "real",   // 3 = 1 + 2
-    "int",    // 4
-    "",       // 5
-    "",       // 6
-    "",       // 7
-    "bool"   ,// 8
-    "",// 9  
-    "",// 10 
-    "",// 11 
-    "",// 12 
-    "",// 13 
-    "",// 14 
-    "",// 15
-    "string", // 16
-    "", "", "", "", "", "", "", "",  "", "", "", "", "", "", "",  //17-31
-    "list", //32
-    "list(double)", // 33 = 32 + 1
-    "list(float)",  // 34 = 32 + 2
-    "list(real)",   // 35 = 32 + 3
-    "list(int)",    // 36 = 32 + 4
-    "", // 37
-    "", // 38
-    "", // 39
-    "list(bool)",   // 40 = 32 + 8
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "list(string)"  //48 = 32 + 16,
-    "", //49
-    "", //50
-    "", //51
-    "", //52
-    "", //53
-    "", //54
-    "", //55
-    "", //56
-    "", //57
-    "", //58
-    "", //59
-    "", //60
-    "", //61
-    "", //62
-    "", //62
-    "", //63
-    "qpp.geometry", //64
-    "", "","" ,"","","","","", //65-72
-    "", "","" ,"","","","","", //73-80
-    "", "","" ,"","","","","",  //81-88
-    "", "","" ,"","","","","", "", "","" ,"","","","","", //89-104
-    "", "","" ,"","","","","", "", "","" ,"","","","","", //105-120
-    "", "","" ,"","","","",  //121-127
-    "qpp.atom_vectors" //128
-  };
-   
+  std::map<basic_types,STRING_EX>  type_data::type_name = {
+    {basic_types::type_none, "none" },  { basic_types::type_double,"double"},
+    {basic_types::type_float,"float",}, { basic_types::type_real, "real" },
+    {basic_types::type_int,"int"},      { basic_types::type_bool,"bool"},
+    {basic_types::type_string,"string"},{ basic_types::type_array,"list"},
+    {basic_types(type_array|type_double),"list(double)"},
+    {basic_types(type_array|type_float), "list(float)"},
+    {basic_types(type_array|type_real),  "list(real)"},
+    {basic_types(type_array|type_int),   "list(int)" },
+    {basic_types(type_array|type_bool),  "list(bool)" },
+    {basic_types(type_array|type_string),"list(string)"},
+    {basic_types(type_qpp_geometry),     "qpp.geometry" },
+    {basic_types(type_qpp_atom_vectors), "qpp.atom_vectors"},
+    {basic_types(type_qpp_vector3),      "qpp.vector3"},
+    {basic_types(type_qpp_color),        "qpp.color" }
+    };
+  
 };

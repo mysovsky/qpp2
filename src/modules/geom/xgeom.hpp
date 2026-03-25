@@ -541,7 +541,7 @@ namespace qpp {
       py::dict hd;
       for (int i=0; i<field_names.size(); i++){ 
 	STRING_EX fn = field_names[i];
-	STRING_EX ft = type_data::type_name[field_types[i]];
+	STRING_EX ft = type_data::type_name[basic_types(field_types[i])];
 	hd[fn.c_str()] = py::cast(ft.c_str());
       }
       return hd;
