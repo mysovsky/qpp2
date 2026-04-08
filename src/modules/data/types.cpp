@@ -78,7 +78,7 @@ namespace qpp{
 
   std::map<basic_types,STRING_EX>  type_data::type_name = {
     {basic_types::type_none, "none" },  { basic_types::type_double,"double"},
-    {basic_types::type_float,"float",}, { basic_types::type_real, "real" },
+    {basic_types::type_float,"float"}, { basic_types::type_real, "real" },
     {basic_types::type_int,"int"},      { basic_types::type_bool,"bool"},
     {basic_types::type_string,"string"},{ basic_types::type_array,"list"},
     {basic_types(type_array|type_double),"list(double)"},
