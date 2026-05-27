@@ -559,7 +559,7 @@ namespace qpp {
 	  if (t&type_real)
 	    xfield<std::vector<REAL>>(i,j) = py::cast<std::vector<REAL>>(l[i]);
 	  else if (t&type_int){
-	    py::print(l[i],py::cast<std::vector<int>>(l[i]), j );
+	    //py::print(l[i],py::cast<std::vector<int>>(l[i]), j );
 	    xfield<std::vector<int> >(i,j) = py::cast<std::vector<int>>(l[i]);
 	  }
 	  else if (t&type_bool)
@@ -587,6 +587,7 @@ namespace qpp {
       REAL z = py::cast<py::float_>(   l.attr("pop")(0));
       geometry<REAL>::add(at,x,y,z);
       newline();
+      //std::cout << "before\n";
       setfromlist(-1,l);
       //std::cout << "nat= " << nat()<< " nf=" << nfields() << "\n";
       
@@ -668,7 +669,7 @@ namespace qpp {
       */
       if (j<0)
 	j += nat();
-      std::cout << i<< " "<< j << " " << nat() << " " << nfields() << "\n";
+      // std::cout << i<< " "<< j << " " << nat() << " " << nfields() << "\n";
       if (j<0|| j>=nat())
 	IndexError("out or range atom number");
       if (i<0)

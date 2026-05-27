@@ -226,3 +226,7 @@ index_range = pq.index_range
 io = pq.io
 
 from pyqpp import fill
+
+index = pq.index
+
+

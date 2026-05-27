@@ -5,6 +5,7 @@
 #include <symm/gen_cell.hpp>
 #include <consts.hpp>
 #include <Eigen/Dense>
+#include <pybind11/stl.h>
 
 /*
 #if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)
@@ -215,7 +216,30 @@ namespace qpp{
 	//      }
       
     }
+    
+    coulomb_point_charges(const std::vector<std::vector<REAL> > &v,
+			  const std::vector<int> &_core_shell): core_shell(_core_shell)
+    {
+      length_units = "bohr";
+      energy_units = "au";
 
+      shell_model = true;
+      
+      for (const auto & l:v){
+	charges.push_back(l[0]);
+	coords.push_back({l[1],l[2],l[3]});
+	core_shell.push_back(-1);
+      }
+      /*
+      if (_core_shell.size() == coords.size()){
+      shell_model = true;*/
+      too_close = globals::too_close;
+      setscales();
+      core_shell_distance=globals::too_close;
+	//      }
+      
+    }
+    
     REAL Eint;
     Eigen::Matrix<REAL, Eigen::Dynamic, Eigen::Dynamic> D1Eint, D2Eint;
     
@@ -414,8 +438,37 @@ namespace qpp{
       /*
       if (_core_shell.size() == coords.size()){
       shell_model = true;*/
-            }
+    }
+
+    coulomb_point_charges(const py::list &l, const py::list & cs){
+      length_units = "bohr";
+      energy_units = "au";
       
+      shell_model = true;
+      too_close = globals::too_close;
+      setscales();
+      core_shell_distance=globals::too_close;
+      
+      for (const auto  &sl:l)
+	if (!py::isinstance<py::list>(sl))
+	  TypeError("Required here the list of the form [[q1,x1,y1,z1],[q2,x2,y2,z2],...]");
+	else
+	  {
+	    const auto  &rl = py::cast<py::list>(sl);
+	    REAL q = py::cast<REAL>(rl[0]);
+	    REAL x = py::cast<REAL>(rl[1]);
+	    REAL y = py::cast<REAL>(rl[2]);
+	    REAL z = py::cast<REAL>(rl[3]);
+	    charges.push_back(q);
+	    coords.push_back({x,y,z});	  
+	  }
+      for (const auto &csi:cs){	
+	int i = py::cast<int>(csi);
+	core_shell.push_back(i);
+      }
+      
+    }
+			  
     Eigen::Matrix<REAL, Eigen::Dynamic, Eigen::Dynamic>
     py_interaction_gradients( coulomb_point_charges<REAL> & c2){
       int n = charges.size();
@@ -448,6 +501,8 @@ namespace qpp{
 	//.def(py::init< std::vector<std::vector<REAL> > , REAL>(),
 	.def(py::init<const py::list &, REAL>(),
 	     py::arg("charges"), py::arg("_too_close") = 0e0 )
+	.def(py::init<const py::list &, const py::list &>(),
+	     py::arg("charges"), py::arg("core_shell") )
 	.def("interaction_energy", & coulomb_point_charges<REAL>::interaction_energy )
 	.def("interaction_gradients", & coulomb_point_charges<REAL>::py_interaction_gradients )
 	.def("interaction_hessian", & coulomb_point_charges<REAL>::py_interaction_hessian )

@@ -9,6 +9,7 @@
 #include <geom/ngbr.hpp>
 #include <consts.hpp>
 //#include <pyqpp/py_indexed_property.hpp>
+#include <pybind11/eigen.h>
 
 namespace qpp{
   
@@ -168,51 +169,42 @@ namespace qpp{
 			   geometry<REAL> & geom)
     {
       std::cout << "mm_calculator::energy_and_derivs\n";
-      if (regions_defined){
-	// mark active and frozen atoms by corresponding regions
-	//must be xgeometry
-	if (!geom.is_xgeometry())
-	  TypeError("Partition into regions is requested for the geometry with no region fiedls (not xgeometry)");
-	xgeometry<REAL>  *xgeom = (xgeometry<REAL>*)(&geom);
-
-	std::cout << xgeom->name << " " << xgeom->nat();
-	for (int i=0; i<xgeom->nfields(); i++) std::cout << xgeom->field_name(i) << " " << (int)(xgeom->field_type(i));
-	std::cout << "\n";
-	
-	std::vector<int> iregs;
-	for (int i=0; i<xgeom->nfields(); i++)
-	  if ( xgeom->field_name(i).substr(0,3) == "reg" && xgeom->field_type(i)& basic_types::type_int ){
-	    iregs.push_back(i);
-	    std::cout << xgeom->field_name(i) <<" " <<  i<< "\n";
-	  }
-
-	std::cout << "IREG:\n";
-	for(int i:iregs)
-	  std::cout << i << " ";
-	std::cout << "\n";
+      if (regions_defined)
+	{
+	  // mark active and frozen atoms by corresponding regions
+	  //must be xgeometry
+	  if (!geom.is_xgeometry())
+	    TypeError("Partition into regions is requested for the geometry with no region fiedls (not xgeometry)");
+	  xgeometry<REAL>  *xgeom = (xgeometry<REAL>*)(&geom);
 	  
-	active_atoms.clear();
-	frozen_atoms.clear();
-	for (int i=0; i<xgeom->nat(); i++){
-	  bool active = false, frozen = false;
-	  for (int k:iregs)
-	    if (xgeom->field_types[k] ==  basic_types::type_int ){
-	      int r = xgeom->template xfield<int>(k,i);
-	      if (std::find(active_regions.begin(), active_regions.end(), r) !=
-		  active_regions.end()) {
-		active = true;
-		break;
-	      }
+	  std::cout << xgeom->name << " " << xgeom->nat();
+	  for (int i=0; i<xgeom->nfields(); i++) std::cout << xgeom->field_name(i) << " " << (int)(xgeom->field_type(i)) << " " ;
+	  std::cout << "\n";
+	  
+	  int ireg;	
+	  for (int i=0; i<xgeom->nfields(); i++)
+	    if ( xgeom->field_name(i) == "reg" && xgeom->field_type(i)& basic_types::type_int ){
+	      ireg = i;
+	      std::cout << xgeom->field_name(i) <<" " <<  i<< "\n";
+	      break;
 	    }
-	    else if  (xgeom->field_types[k] ==  basic_types::type_int + basic_types::type_array){
-	      std::vector<int> reg = xgeom->template xfield<std::vector<int> >(k,i);
-	      if (have_common(reg,active_regions)){
+	  
+	  std::cout << "IREG:"<< ireg <<"\n";
+	  
+	  active_atoms.clear();
+	  frozen_atoms.clear();
+	  for (int i=0; i<xgeom->nat(); i++)
+	    {
+	      bool active = false, frozen = false;
+	      auto rr = xgeom->template xfield<std::vector<int>>(ireg,i);
+	      for (int r:rr)	    
+		if (std::find(active_regions.begin(), active_regions.end(), r) !=
+		    active_regions.end()) {
 		  active = true;
 		  break;
 		}
-		}
-	      for (int k:iregs)
-		if (std::find(frozen_regions.begin(), frozen_regions.end(), xgeom->template xfield<int>(k,i)) !=
+	      for (int r:rr)
+		if (std::find(frozen_regions.begin(), frozen_regions.end(), r) !=
 		    frozen_regions.end()) {
 		  frozen = true;
 		  break;
@@ -220,39 +212,38 @@ namespace qpp{
 	      if (active)
 		active_atoms.push_back(i);
 	      else if (frozen)
-		frozen_atoms.push_back(i);
-	    
+		frozen_atoms.push_back(i);	    
 	    }
-	  
-	}
-
-	std::cout << "active atoms: ";
-	for (int i:active_atoms)
-	  std::cout << i << " ";
-	std::cout << "\nfrozen atoms: ";
-	for (int i:frozen_atoms)
-	  std::cout << i << " ";
-	std::cout << "\n";
-      
-
-	auto bt = bonding_table<REAL>();
-	for (auto p:pot)
-	  bt.merge(p->distances());
-
-	std::cout << py::str(bt.to_dict()) << "\n";
-
-	geom.build_typetable();
-	neighbours_table<REAL>  ngbr(geom,bt);
-	ngbr.build();
-
-	for (auto p:pot){
-	  std::cout << typeid(pot).name();
-	  for (auto i:  active_atoms) std::cout << i  << " ";
+	  /*
+	  std::cout << "active atoms: ";
+	  for (int i:active_atoms)
+	    std::cout << i << " ";
+	  std::cout << "\nfrozen atoms: ";
+	  for (int i:frozen_atoms)
+	    std::cout << i << " ";
 	  std::cout << "\n";
-	
-	  p->energy_and_derivs(E, D1E, do_d1e, D2E, do_d2e, geom, ngbr, active_atoms, frozen_atoms, core_shells);
+	  */
+	  
+	  auto bt = bonding_table<REAL>();
+	  for (auto p:pot)
+	    bt.merge(p->distances());
+	  
+	  std::cout << py::str(bt.to_dict()) << "\n";
+	  
+	  geom.build_typetable();
+	  neighbours_table<REAL>  ngbr(geom,bt);
+	  ngbr.build();
+	  
+	  for (auto p:pot){
+	    /*
+	    std::cout << typeid(pot).name();
+	    for (auto i:  active_atoms) std::cout << i  << " ";
+	    std::cout << "\n";
+	    */
+	    p->energy_and_derivs(E, D1E, do_d1e, D2E, do_d2e, geom, ngbr, active_atoms, frozen_atoms, core_shells);
+	  }
 	}
-      }
+    }
 
 #if defined(PY_EXPORT) || defined(QPPCAD_PY_EXPORT)
 
